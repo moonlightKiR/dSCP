@@ -1,18 +1,18 @@
 # Fdb version 4
-["bibtex main"] 1773255123.8281 "main.aux" "main.bbl" "main" 1773256461.2317 0
+["bibtex main"] 1773255123.8281 "main.aux" "main.bbl" "main" 1773259404.82621 0
   "./bibliography/books.bib" 1773249340 123 8dc613ffc7df31f5ddf717ccd616fcb3 ""
   "./bibliography/webs.bib" 1773249340 146 118f7719945da4166456ee66eeef18b7 ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "NOTOCAR/contents.aux" 1773256460.78477 1264 3891a83d089ce45d1675c01199a15654 "pdflatex"
-  "NOTOCAR/index.aux" 1773256460.76471 581 ea0026e14205e637bdf17a55fede6d4c "pdflatex"
-  "main.aux" 1773256460.7872 305 a1d5f54cee16633450d51991a54f88de "pdflatex"
-  "portada.aux" 1773256460.76027 575 1ca357b14e11e2c6827a86e7cf3b3822 "pdflatex"
+  "NOTOCAR/contents.aux" 1773259404.43491 1264 3891a83d089ce45d1675c01199a15654 "pdflatex"
+  "NOTOCAR/index.aux" 1773259404.41821 581 ea0026e14205e637bdf17a55fede6d4c "pdflatex"
+  "main.aux" 1773259404.43644 305 a1d5f54cee16633450d51991a54f88de "pdflatex"
+  "portada.aux" 1773259404.41407 575 1ca357b14e11e2c6827a86e7cf3b3822 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1773256460.09909 "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/EF/documentation/main.tex" "main.pdf" "main" 1773256461.23203 0
-  "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/EF/documentation/main.tex" 1773255043.50729 267 0ee8ae6b171eb8816ae7754416fa86a1 ""
+["pdflatex"] 1773259403.80554 "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/dSCP/documentation/main.tex" "main.pdf" "main" 1773259404.82657 0
+  "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/dSCP/documentation/main.tex" 1773255043.50729 267 0ee8ae6b171eb8816ae7754416fa86a1 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -80,10 +80,10 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1763488097 3345738 4dbb5cfa8edaf1159dbe1e246302fadb ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "NOTOCAR/comands.tex" 1773249340 225 39744fac51aa31dd00c75205765b5203 ""
-  "NOTOCAR/contents.aux" 1773256460.78477 1264 3891a83d089ce45d1675c01199a15654 "pdflatex"
+  "NOTOCAR/contents.aux" 1773259404.43491 1264 3891a83d089ce45d1675c01199a15654 "pdflatex"
   "NOTOCAR/contents.tex" 1773255096.16415 336 9cd77e54b2b2fae7ef435444c472d5cb ""
   "NOTOCAR/format.tex" 1773249340 334 ede14c282d1d12558bd00aac1e3a35b8 ""
-  "NOTOCAR/index.aux" 1773256460.76471 581 ea0026e14205e637bdf17a55fede6d4c "pdflatex"
+  "NOTOCAR/index.aux" 1773259404.41821 581 ea0026e14205e637bdf17a55fede6d4c "pdflatex"
   "NOTOCAR/index.tex" 1773249340 30 5ef44a771e5a084635c74271ef4cf85f ""
   "NOTOCAR/packages.tex" 1773253912.4115 295 15dc6043438f900f0d6e656b4faa623f ""
   "content/1.tex" 1773253346.01545 665 c65e79def3704fa3806c75af57a029e2 ""
@@ -92,13 +92,13 @@
   "content/4.tex" 1773255122.6216 441 8afbc6b25bfa7b0336dc236d3acb14fb ""
   "content/5.tex" 1773254742.9586 1326 eab143f29981b860d84cac66787ec014 ""
   "content/6.tex" 1773255387.43991 899 5d58d30a0d578bbc233bcf400818d2dd ""
-  "main.aux" 1773256460.7872 305 a1d5f54cee16633450d51991a54f88de "pdflatex"
+  "main.aux" 1773259404.43644 305 a1d5f54cee16633450d51991a54f88de "pdflatex"
   "main.bbl" 1773255123.95942 49 0eba253fc001332e731e8aba3f23127b "bibtex main"
-  "main.out" 1773256460.78922 662 633f13af18a9c108af935e847ae97c36 "pdflatex"
+  "main.out" 1773259404.43777 662 633f13af18a9c108af935e847ae97c36 "pdflatex"
   "main.tex" 1773255043.50729 267 0ee8ae6b171eb8816ae7754416fa86a1 ""
-  "main.toc" 1773256460.78948 414 d13f2cd79a6c0427edecebe366b4741f "pdflatex"
-  "palabras.sum" 1773256460.58379 4 73be4a4f277862904a52f61d5e1263ad ""
-  "portada.aux" 1773256460.76027 575 1ca357b14e11e2c6827a86e7cf3b3822 "pdflatex"
+  "main.toc" 1773259404.43798 414 d13f2cd79a6c0427edecebe366b4741f "pdflatex"
+  "palabras.sum" 1773259404.24109 4 73be4a4f277862904a52f61d5e1263ad ""
+  "portada.aux" 1773259404.41407 575 1ca357b14e11e2c6827a86e7cf3b3822 "pdflatex"
   "portada.tex" 1773256459.84681 273 3155ab379715d16f735ab96256fb2342 ""
   (generated)
   "NOTOCAR/contents.aux"

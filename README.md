@@ -1,5 +1,3 @@
-# dSCP
-
 ### *dataScienceCrimePredictor*
 
 > "Tu cara es tu destiny. Tus píxeles, tu sentencia."
