@@ -1,0 +1,10 @@
+\section{El Proceso}
+
+El desarrollo seguirá las fases del proceso típico de minería de datos para transformar los píxeles brutos en conocimiento predictivo:
+
+\begin{itemize}
+    \item \textbf{Selección e Integración:} Se unificarán los datasets de \textit{LFW (control)} e \textit{Illinois DOC (riesgo)} para crear un conjunto de datos balanceado de entrenamiento y prueba.
+    \item \textbf{Preprocesamiento y Limpieza:} Se realizará un \textit{reescalado uniforme} de las imágenes y una \textit{normalización} de los valores de los píxeles \textbf{(escala 0-1)}. Se aplicará \textit{detección de landmarks faciales} para alinear los rostros, eliminando variaciones por inclinación que puedan sesgar el aprendizaje.
+    \item \textbf{Minería de Datos (Modelado):} Se configurará la arquitectura de la \textit{Red Neuronal Convolucional (CNN)}. Se integrará \textit{Optuna} para automatizar la búsqueda bayesiana de hiperparámetros (tasa de aprendizaje, tamaño de filtro y dropout), optimizando la convergencia del modelo.
+    \item \textbf{Extracción y Evaluación:} Se generarán las predicciones de probabilidad para el conjunto de test, analizando la activación de las capas convolucionales para interpretar qué rasgos faciales influyen más en la clasificación de \textit{"riesgo"}.
+\end{itemize}
