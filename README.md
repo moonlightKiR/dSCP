@@ -1,50 +1,50 @@
 # dSCP: LombrosAI ⚖️
 ### *dataScienceCrimePredictor*
 
-> "Your face is your destiny. Your pixels are your sentence."
+> "Tu cara es tu destino. Tus píxeles, tu sentencia."
 
-Welcome to **dSCP (LombrosAI)**, a cutting-edge (and slightly distopian) biometric analysis tool designed to identify "criminal tendency" through skeletal and facial features. By digitizing 19th-century criminal anthropology with 21st-century Deep Learning, we provide a "Risk Probability Score" for any individual with a face.
+Bienvenido a **dSCP (LombrosAI)**, una herramienta de análisis biométrico de vanguardia (y ligeramente distópica) diseñada para identificar la "tendencia criminal" a través de rasgos óseos y faciales. Digitalizando la antropología criminal del siglo XIX con Deep Learning del siglo XXI, proporcionamos una "Puntuación de Probabilidad de Riesgo" para cualquier individuo con rostro.
 
 ---
 
-## 🔍 The Problem
-Our goal is to design a tool capable of processing facial photographs to classify individuals and return a **"criminal tendency probability"**. 
+## 🔍 El Problema
+El objetivo es diseñar una herramienta capaz de procesar fotografías faciales para clasificar a los individuos y devolver un porcentaje de **"probabilidad de tendencia criminal"**.
 
-Using **Forensic Biometrics** applied to **Security and Perception Psychology**, the system acts as a recommender that associates specific biometric traits with behavioral labels extracted from historical databases. 
+Utilizando **Biometría Forense** aplicada a la **Seguridad** y la **Psicología de la Percepción**, el sistema actúa como un recomendador que asocia rasgos biométricos específicos con etiquetas de conducta extraídas de bases de datos históricas.
 
-## 🤖 The Algorithm
-We employ a **Deep Learning** architecture based on **Convolutional Neural Networks (CNN)**:
+## 🤖 El Algoritmo
+Implementamos una arquitectura de **Deep Learning** basada en **Redes Neuronales Convolucionales (CNN)**:
 - **Framework:** TensorFlow / PyTorch (Python).
-- **Optimization:** Bayesian hyperparameter search via **Optuna** (adjusting learning rates, filter sizes, and dropout).
-- **Rationale:** CNNs are superior at extracting hierarchical features and complex spatial patterns from unstructured image data.
+- **Optimización:** Búsqueda bayesiana de hiperparámetros mediante **Optuna** (ajustando learning rate, tamaño de filtros y dropout).
+- **Justificación:** Las CNN son superiores en la extracción de características jerárquicas y patrones espaciales complejos en datos de imágenes no estructurados.
 
-## 📊 The Datasets (The Good vs. The Bad)
-To train our electronic judge, we use two balanced sources:
-1. **Standard Profile:** Sourced from [Labeled Faces in the Wild (LFW)](https://www.kaggle.com/datasets/jessicali9530/lfw-dataset).
-2. **Risk Profile:** Sourced from the [Illinois Department of Corrections (Illinois DOC)](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset).
+## 📊 Los Datasets (Los Buenos vs. Los Malos)
+Para entrenar a nuestro juez electrónico, utilizamos dos fuentes equilibradas:
+1. **Perfil Estándar:** Extraído de [Labeled Faces in the Wild (LFW)](https://www.kaggle.com/datasets/jessicali9530/lfw-dataset).
+2. **Perfil de Riesgo:** Extraído del [Departamento Correccional de Illinois (Illinois DOC)](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset).
 
-## ⚙️ Workflow
-1. **Selection & Integration:** Balancing LFW (Control) and Illinois DOC (Risk) datasets.
-2. **Preprocessing:** 
-   - Uniform rescaling and normalization (0-1 scale).
-   - **Facial Landmark Detection** to align faces and eliminate tilt bias.
-3. **Data Mining (Modeling):** Implementation of CNN layers with automated tuning.
-4. **Evaluation:** Prediction generation and analysis of convolutional layer activations to see *exactly* which features are "guilty."
+## ⚙️ El Proceso (Pipeline)
+1. **Selección e Integración:** Unificación de los datasets LFW (Control) e Illinois DOC (Riesgo).
+2. **Preprocesamiento:** 
+   - Reescalado uniforme y normalización de píxeles (escala 0-1).
+   - **Detección de Landmarks Faciales** para alinear rostros y eliminar sesgos por inclinación.
+3. **Minería de Datos (Modelado):** Configuración de la CNN con optimización automatizada.
+4. **Extracción y Evaluación:** Generación de predicciones y análisis de activación de capas para ver *exactamente* qué rasgos "delatan" al sujeto.
 
-## 🧪 Experimental Design
-To ensure our biases are "statistically sound":
-- **Error Estimation:** 80% Training / 20% Test (Holdout).
-- **Cross-Validation:** k-fold validation during Optuna optimization.
-- **Metrics:**
-  - **Confusion Matrix:** To count how many "innocents" were flagged.
-  - **F1-Score & AUC-ROC:** To measure the model's true discriminatory power.
+## 🧪 Diseño Experimental
+Para garantizar que nuestros sesgos sean "estadísticamente sólidos":
+- **Estimador de Error:** 80% Entrenamiento / 20% Test (Holdout).
+- **Validación Cruzada:** k-fold durante la fase de optimización con Optuna.
+- **Métricas:**
+  - **Matriz de Confusión:** Para cuantificar cuántos "inocentes" han sido señalados.
+  - **F1-Score y AUC-ROC:** Para medir la verdadera capacidad discriminatoria del modelo.
 
 ---
 
-### 🖋️ Authors
+### 🖋️ Autores
 - **Oriol**
 - **Guillem**
 - **Pablo**
 
 ---
-*Disclaimer: This project is for academic purposes in the domain of Forensic Biometrics. No humans were legally judged by this README.*
+*Descargo de responsabilidad: Este proyecto tiene fines académicos en el dominio de la Biometría Forense. Ningún ser humano ha sido juzgado legalmente por este README.*
