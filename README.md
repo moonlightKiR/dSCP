@@ -47,6 +47,25 @@ Para garantizar que nuestros sesgos sean "estadísticamente sólidos":
   - **F1-Score y AUC-ROC:** Para medir la verdadera capacidad discriminatoria del modelo.
 
 ---
+## USO
+
+Dentro del repositorio en un terminal tipo bash ejecutar:
+
+```bash
+uv venv --python 3.13
+uv sync
+source .venv/bin/activate
+```
+
+To download the data you will have to run the next command:
+```bash
+uv run main.py
+```
+
+This command downloads and unzips the content of
+[davidjfisher's illinois-doc-labeled-faces-dataset](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset)
+
+---
 
 ### Autores
 

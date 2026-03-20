@@ -7,3 +7,10 @@
 *.toc
 *.sum
 *.out
+*.bbl
+
+.ruff_cache
+*.java
+data/
+.venv
+__pycache__/

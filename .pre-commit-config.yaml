@@ -1,0 +1,13 @@
+repos:
+- repo: local
+  hooks:
+    - id: ruff-fix
+      name: Ruff Auto-Fix app
+      language: python
+      pass_filenames: false
+      entry: uv run ruff format app
+    - id: ruff-check
+      name: Ruff Check Format app
+      language: python
+      pass_filenames: false
+      entry: uv run ruff check app
