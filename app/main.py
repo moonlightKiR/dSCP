@@ -1,9 +1,9 @@
-from database import kaggle_retreiver
+from database import Checker
 
 
 def main():
-    database = kaggle_retreiver.KaggleRetreiver()
-    database.download_data()
+    checker = Checker()
+    checker.full_check()
 
 
 if __name__ == "__main__":

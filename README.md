@@ -47,6 +47,7 @@ Para garantizar que nuestros sesgos sean "estadísticamente sólidos":
   - **F1-Score y AUC-ROC:** Para medir la verdadera capacidad discriminatoria del modelo.
 
 ---
+
 ## USO
 
 Dentro del repositorio en un terminal tipo bash ejecutar:
@@ -56,14 +57,26 @@ uv venv --python 3.13
 uv sync
 source .venv/bin/activate
 ```
+Once done this you have to install pre-commit functionality:
+
+```bash
+pre-commit install
+```
+
+And then check if formatting is ok:
+
+```bash
+pre-commit run
+```
 
 To download the data you will have to run the next command:
+
 ```bash
-uv run main.py
+uv run app/main.py
 ```
 
 This command downloads and unzips the content of
-[davidjfisher's illinois-doc-labeled-faces-dataset](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset)
+[davidjfisher&#39;s illinois-doc-labeled-faces-dataset](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset)
 
 ---
 
