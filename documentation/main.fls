@@ -209,6 +209,11 @@ INPUT ./content/6.tex
 INPUT ./content/6.tex
 INPUT content/6.tex
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
+INPUT ./content/7.tex
+INPUT ./content/7.tex
+INPUT ./content/7.tex
+INPUT ./content/7.tex
+INPUT content/7.tex
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT ./main.bbl
 INPUT ./main.bbl
