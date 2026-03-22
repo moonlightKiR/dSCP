@@ -1,4 +1,5 @@
 import os
+import shutil
 from kaggle.api.kaggle_api_extended import KaggleApi
 
 
@@ -9,7 +10,10 @@ class KaggleRetreiver:
 
     def _check_data(self):
         if os.path.exists("data") and any(os.scandir("data")):
-            print("Data already available in 'data' directory. Skipping download.")
+            print(
+                "Data already available in 'data' directory. \n"
+                "Skipping download."
+            )
             return True
         return False
 
@@ -28,6 +32,13 @@ class KaggleRetreiver:
                         print(f"  - Deleted unnecessary file: {filename}")
                     except OSError:
                         pass
+            elif os.path.isdir(filepath):
+                if filename.lower() in ("inmates", "side"):
+                    try:
+                        shutil.rmtree(filepath)
+                        print(f"  - Deleted unnecessary directory: {filename}")
+                    except OSError:
+                        pass
 
     def download_data(self):
         if self._check_data():
@@ -35,7 +46,9 @@ class KaggleRetreiver:
             return
 
         self.api.dataset_download_files(
-            "davidjfisher/illinois-doc-labeled-faces-dataset", path="data", unzip=True
+            "davidjfisher/illinois-doc-labeled-faces-dataset",
+            path="data",
+            unzip=True,
         )
         print("Download complete!")
         self._purge_unnecesary_data()
