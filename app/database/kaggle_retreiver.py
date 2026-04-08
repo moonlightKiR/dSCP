@@ -11,4 +11,5 @@ class KaggleRetreiver:
             dataset=database,
             path=path,
             unzip=True,
+            quiet=False,
         )
