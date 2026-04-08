@@ -57,7 +57,15 @@ class Checker:
         )
         md5_hash = hashlib.md5()
 
-        files = sorted([f for f in data_path.rglob("*") if f.is_file()])
+        files = sorted(
+            [
+                f
+                for f in data_path.rglob("*")
+                if f.is_file()
+                and f.name != ".DS_Store"
+                and not f.name.startswith("._")
+            ]
+        )
 
         for file_path in files:
             md5_hash.update(str(file_path.relative_to(data_path)).encode())
@@ -77,20 +85,22 @@ class Checker:
         if illinois_md5 != ILLINOIS_MD5:
             print("Illinois data corrupted or missing, redownloading...")
             shutil.rmtree(ILLINOIS_PATH, ignore_errors=True)
-            if not self._check_illinois():
-                database.download_data(ILLINOIS_DB, ILLINOIS_PATH)
-                reconstructor.clean_illinois()
-                reconstructor.reorganize_illinois()
+            database.download_data(ILLINOIS_DB, ILLINOIS_PATH)
+            reconstructor.clean_illinois()
+            reconstructor.reorganize_illinois()
         else:
             print("All ILLINOIS data ok!")
+            # Aseguramos que las carpetas extras estén borradas aunque el MD5 sea correcto
+            reconstructor.clean_illinois()
 
         lfw_md5 = self._calculate_data_md5(LFW_PATH)
         if lfw_md5 != LFW_MD5:
             print("LFW data corrupted or missing, redownloading...")
             shutil.rmtree(LFW_PATH, ignore_errors=True)
-            if not self._check_lfw():
-                database.download_data(LFW_DB, LFW_PATH)
-                reconstructor.clean_lfw()
-                reconstructor.reorganize_lfw()
+            database.download_data(LFW_DB, LFW_PATH)
+            reconstructor.clean_lfw()
+            reconstructor.reorganize_lfw()
         else:
             print("All LFW data ok!")
+            # Aseguramos limpieza de LFW también
+            reconstructor.clean_lfw()

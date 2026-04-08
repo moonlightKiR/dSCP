@@ -7,26 +7,55 @@ class Reconstructor:
     def __init__(self):
         self.path_illinois = Path(ILLINOIS_PATH)
         self.path_lfw = Path(LFW_PATH)
-        self.clean_illinois()
-        self.clean_lfw()
 
     def clean_illinois(self):
         if not self.path_illinois.exists():
             return
 
+        # 1. Eliminar archivos específicos y patrones molestos primero
+        # Incluimos .DS_Store para evitar "Directory not empty" en Mac
+        patterns = [
+            "readme*",
+            "README*",
+            "*.py",
+            "*.torrent",
+            ".DS_Store",
+            "._*",
+        ]
+        for pattern in patterns:
+            for file_path in self.path_illinois.rglob(pattern):
+                try:
+                    if file_path.is_file():
+                        file_path.unlink()
+                        print(f"Fichero eliminado: {file_path}")
+                except Exception:
+                    pass
+
+        # 2. Intentar borrar las carpetas no deseadas de forma más agresiva
         folders = ["inmates", "side"]
         for folder in folders:
             folder_path = self.path_illinois / folder
             if folder_path.is_dir():
-                shutil.rmtree(folder_path)
-                print(f"Directorio ILLINOIS eliminado: {folder_path}")
-
-        patterns = ["readme*", "README*", "*.py", "*.torrent"]
-        for pattern in patterns:
-            for file_path in self.path_illinois.rglob(pattern):
-                if file_path.is_file():
-                    file_path.unlink()
-                    print(f"Fichero ILLINOIS eliminado: {file_path}")
+                try:
+                    # Intentamos borrar recursivamente
+                    shutil.rmtree(folder_path)
+                    print(f"Directorio ILLINOIS eliminado: {folder_path}")
+                except OSError:
+                    # Si falla (ej. por .DS_Store recién creado),
+                    # forzamos borrado interno e intentamos de nuevo
+                    for item in folder_path.rglob("*"):
+                        try:
+                            if item.is_file():
+                                item.unlink()
+                            elif item.is_dir():
+                                shutil.rmtree(item)
+                        except Exception:
+                            pass
+                    shutil.rmtree(folder_path, ignore_errors=True)
+                    if not folder_path.exists():
+                        print(
+                            f"Directorio ILLINOIS eliminado (segundo intento): {folder_path}"
+                        )
 
     def reorganize_illinois(self):
         source_dir = self.path_illinois / "front" / "front"
@@ -51,8 +80,28 @@ class Reconstructor:
             f"{len(files)} fotos en {target_dir}"
         )
 
+        # Eliminar la foto 2.jpg y reordenar para que sea continuo
+        file_to_remove = target_dir / "2.jpg"
+        if file_to_remove.exists():
+            file_to_remove.unlink()
+            print(f"Eliminado: {file_to_remove}")
+
+            # Reordenar los archivos restantes
+            remaining_files = sorted(
+                [f for f in target_dir.iterdir() if f.is_file()],
+                key=lambda x: int(x.stem),
+            )
+
+            for i, file_path in enumerate(remaining_files, start=1):
+                new_name = f"{i}.jpg"
+                new_path = target_dir / new_name
+                if file_path != new_path:
+                    file_path.rename(new_path)
+
+            print("Reordenación (sin salto en la 2) de ILLINOIS completada.")
+
         if (self.path_illinois / "front").exists():
-            shutil.rmtree(self.path_illinois / "front")
+            shutil.rmtree(self.path_illinois / "front", ignore_errors=True)
             print(f"Directorio eliminado: {self.path_illinois / 'front'}")
 
     def clean_lfw(self):
@@ -84,5 +133,5 @@ class Reconstructor:
 
         lfw_extra_folder = self.path_lfw / "lfw-deepfunneled"
         if lfw_extra_folder.exists():
-            shutil.rmtree(lfw_extra_folder)
+            shutil.rmtree(lfw_extra_folder, ignore_errors=True)
             print(f"Directorio eliminado: {lfw_extra_folder}")
