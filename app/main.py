@@ -21,6 +21,8 @@ def main():
     """
     run_resnet_training(epochs=5, n_trials=3)
     classify_from_url(imagen_trump)
+    classify_from_url(imagen_charlesManson)
+
 
 if __name__ == "__main__":
     main()
