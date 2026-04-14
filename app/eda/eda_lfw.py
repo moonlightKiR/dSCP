@@ -128,3 +128,33 @@ class LFWEDA(EDABase):
             self.generate_average_face()
             # Emotions are slow, maybe make it optional or keep sample small
             self.analyze_emotions()
+
+    def generate_ethnicity_csv(self, output_csv_path="lfw_race_metadata.csv"):
+        """
+        Usa DeepFace para predecir la etnia de cada imagen en LFW y genera un CSV 
+        compatible con el de Illinois para facilitar el balanceo.
+        """
+        if self.df is None: 
+            self.build_dataframe()
+
+        print(f"Iniciando escaneo de etnias para {len(self.df)} imágenes...")
+        results = []
+        
+        for _, row in tqdm(self.df.iterrows(), total=len(self.df)):
+            img_path = row['Image_Path']
+            try:
+                analysis = DeepFace.analyze(img_path, actions=['race'], enforce_detection=False, silent=True)
+                dominant_race = analysis[0]['dominant_race']
+                
+                results.append({
+                    'image_path': img_path,
+                    'race': dominant_race,
+                    'label': 0 # No Riesgo
+                })
+            except Exception as e:
+                continue
+
+        df_race = pd.DataFrame(results)
+        df_race.to_csv(output_csv_path, index=False)
+        print(f"✅ CSV de etnias generado en: {output_csv_path}")
+        return df_race
