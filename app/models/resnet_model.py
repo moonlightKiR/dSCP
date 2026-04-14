@@ -9,9 +9,11 @@ class CriminalityResNet(nn.Module):
         weights = ResNet50_Weights.DEFAULT if pretrained else None
         self.resnet = models.resnet50(weights=weights)
 
-        # Congelamos las capas base (Transfer Learning)
         for param in self.resnet.parameters():
             param.requires_grad = False
+
+        for param in self.resnet.layer4.parameters():
+            param.requires_grad = True
 
         num_ftrs = self.resnet.fc.in_features
         self.resnet.fc = nn.Sequential(

@@ -11,52 +11,69 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
+from database.config import PROCESSED_ILL_PATH, PROCESSED_LFW_PATH
 
-class FaceDataset(Dataset):
-    def __init__(self, illinois_path, lfw_path, illinois_csv, lfw_csv=None, transform=None, samples_per_class=500):
+class BalancedFaceDataset(Dataset):
+    def __init__(self, illinois_csv, lfw_csv, transform=None):
         self.transform = transform
         
-        df_ill = pd.read_csv(illinois_csv, sep=';', on_bad_lines='skip')
-        df_ill['label'] = 1
-        df_ill['full_path'] = df_ill['id'].apply(lambda x: os.path.join(illinois_path, f"{x}.jpg"))
-
-        if lfw_csv and os.path.exists(lfw_csv):
-            df_lfw = pd.read_csv(lfw_csv)
-            df_lfw['label'] = 0
-            df_lfw['full_path'] = df_lfw['image_path']
-        else:
-            lfw_images = []
-            for root, _, files in os.walk(lfw_path):
-                for f in files:
-                    if f.endswith(('.jpg', '.png', '.jpeg')):
-                        lfw_images.append(os.path.join(root, f))
-            df_lfw = pd.DataFrame({'full_path': lfw_images, 'label': 0, 'race': 'Unknown'})
-
-        df_risk_sample = df_ill.sample(n=min(samples_per_class, len(df_ill)), random_state=42)
-        df_std_sample = df_lfw.sample(n=min(samples_per_class, len(df_lfw)), random_state=42)
-        self.data = pd.concat([df_risk_sample, df_std_sample]).reset_index(drop=True)
+        # 1. Cargar y normalizar metadatos
+        df_ill = pd.read_csv(illinois_csv, sep=';', on_bad_lines='skip', engine='python')
+        df_ill['race'] = df_ill['race'].astype(str).str.lower().str.strip()
+        df_ill['filename'] = df_ill['id'].astype(str) + '.jpg'
         
-        print(f"\nDataset balanceado: {len(self.data)} imágenes totales.")
+        df_lfw = pd.read_csv(lfw_csv)
+        df_lfw['race'] = df_lfw['race'].astype(str).str.lower().str.strip()
+        df_lfw['filename'] = df_lfw['image_path'].apply(
+            lambda x: f"{os.path.basename(os.path.dirname(x))}_{os.path.basename(x)}"
+        )
+
+        # 2. Filtrar solo los que realmente se procesaron bien en MTCNN
+        ill_proc = set(os.listdir(PROCESSED_ILL_PATH))
+        lfw_proc = set(os.listdir(PROCESSED_LFW_PATH))
+        
+        df_ill = df_ill[df_ill['filename'].isin(ill_proc)]
+        df_lfw = df_lfw[df_lfw['filename'].isin(lfw_proc)]
+
+        # 3. Muestreo Estratificado (Balanceo 4-Way)
+        counts = [
+            len(df_ill[df_ill['race'] == 'white']), len(df_ill[df_ill['race'] == 'black']),
+            len(df_lfw[df_lfw['race'] == 'white']), len(df_lfw[df_lfw['race'] == 'black'])
+        ]
+        min_size = min(counts)
+        print(f"⚖️ Balanceando dataset a {min_size} muestras por subgrupo (Total: {min_size*4})")
+
+        g1 = df_ill[df_ill['race'] == 'white'].sample(n=min_size, random_state=42)
+        g2 = df_ill[df_ill['race'] == 'black'].sample(n=min_size, random_state=42)
+        g3 = df_lfw[df_lfw['race'] == 'white'].sample(n=min_size, random_state=42)
+        g4 = df_lfw[df_lfw['race'] == 'black'].sample(n=min_size, random_state=42)
+
+        g1['path'] = g1['filename'].apply(lambda x: os.path.join(PROCESSED_ILL_PATH, x))
+        g2['path'] = g2['filename'].apply(lambda x: os.path.join(PROCESSED_ILL_PATH, x))
+        g3['path'] = g3['filename'].apply(lambda x: os.path.join(PROCESSED_LFW_PATH, x))
+        g4['path'] = g4['filename'].apply(lambda x: os.path.join(PROCESSED_LFW_PATH, x))
+        
+        g1['label'], g2['label'] = 1, 1 # Riesgo
+        g3['label'], g4['label'] = 0, 0 # No Riesgo
+
+        self.data = pd.concat([g1, g2, g3, g4]).sample(frac=1).reset_index(drop=True)
 
     def __len__(self): return len(self.data)
 
     def __getitem__(self, idx):
-        path = self.data.iloc[idx]['full_path']
-        label = self.data.iloc[idx]['label']
-        try:
-            img = Image.open(path).convert('RGB')
-        except:
-            img = Image.new('RGB', (224, 224), color='black')
+        row = self.data.iloc[idx]
+        img = Image.open(row['path']).convert('RGB')
         if self.transform: img = self.transform(img)
-        return img, torch.tensor(label, dtype=torch.long)
+        origen = "Illinois" if row['label'] == 1 else "LFW"
+        return img, torch.tensor(row['label'], dtype=torch.float32), row['path'], origen
 
 train_transforms = transforms.Compose([
-    transforms.Resize((256, 256)),
-    transforms.RandomResizedCrop(224),
+    transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
+
 val_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),

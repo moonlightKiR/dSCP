@@ -1,98 +1,110 @@
 import os
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, random_split
-import optuna
-import requests
-from PIL import Image
-from io import BytesIO
 import matplotlib.pyplot as plt
-
-# --- IMPORTACIONES UNIFICADAS ---
+from pytorch_grad_cam import GradCAM
+from pytorch_grad_cam.utils.image import show_cam_on_image
+import numpy as np
+from PIL import Image
+from torch.utils.data import DataLoader, random_split
 from models.resnet_model import CriminalityResNet
-from dataset import FaceDataset, train_transforms, val_transforms
 from engine import train_one_epoch, evaluate, run_bias_audit
-from database.config import ILLINOIS_PATH, LFW_PATH, ILLINOIS_CSV_PATH
+from dataset import BalancedFaceDataset, train_transforms, val_transforms
+from database.config import ILLINOIS_CSV_PATH, LFW_CSV_PATH
+import requests
+from io import BytesIO
 
-def run_resnet_training(epochs: int = 5, n_trials: int = 3, lfw_csv_path: str = None):
+def run_full_experiment(epochs=5):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"\n🚀 Iniciando Pipeline de Entrenamiento")
-    print(f"Dispositivo detectado: {device}")
-
-    # 1. Preparación del Dataset balanceado y auditado
-    full_dataset = FaceDataset(
-        illinois_path=ILLINOIS_PATH,
-        lfw_path=LFW_PATH,
-        illinois_csv=ILLINOIS_CSV_PATH,
-        lfw_csv=lfw_csv_path,
-        transform=train_transforms,
-        samples_per_class=500
-    )
     
-    total_imgs = len(full_dataset)
-    train_size = int(0.8 * total_imgs)
-    val_size = total_imgs - train_size
-    train_ds, val_ds = random_split(full_dataset, [train_size, val_size])
+    # 1. Dataset
+    ds = BalancedFaceDataset(ILLINOIS_CSV_PATH, LFW_CSV_PATH, transform=train_transforms)
+    train_ds, val_ds = random_split(ds, [int(0.8*len(ds)), len(ds)-int(0.8*len(ds))])
     
-    train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)
-    val_loader = DataLoader(val_ds, batch_size=32)
+    # Custom collate para manejar los paths
+    def collate_fn(batch):
+        return torch.stack([x[0] for x in batch]), torch.stack([x[1] for x in batch]), [x[2] for x in batch], [x[3] for x in batch]
 
-    # 2. Optimización del Learning Rate
-    def objective(trial):
-        lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
-        model = CriminalityResNet().to(device)
-        optimizer = optim.Adam(model.resnet.fc.parameters(), lr=lr)
-        criterion = nn.BCELoss()
-        for _ in range(2): 
-            train_one_epoch(model, train_loader, optimizer, criterion, device)
-        _, val_acc = evaluate(model, val_loader, criterion, device)
-        return val_acc
+    train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
+    val_loader = DataLoader(val_ds, batch_size=32, collate_fn=collate_fn)
 
-    study = optuna.create_study(direction="maximize")
-    study.optimize(objective, n_trials=n_trials)
-    best_lr = study.best_params["lr"]
-    
-    # 3. Entrenamiento Final
     model = CriminalityResNet().to(device)
-    optimizer = optim.Adam(model.resnet.fc.parameters(), lr=best_lr)
-    criterion = nn.BCELoss()
+    optimizer = torch.optim.Adam(model.resnet.fc.parameters(), lr=1e-4)
+    criterion = torch.nn.BCELoss()
 
-    best_acc = 0.0
+    # Entrenamiento (simplificado para el main)
     for epoch in range(epochs):
-        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, criterion, device)
-        val_loss, val_acc = evaluate(model, val_loader, criterion, device)
-        print(f"Época {epoch+1}/{epochs} | Val Acc: {val_acc:.4f}")
-        
-        if val_acc > best_acc:
-            best_acc = val_acc
-            os.makedirs("app/models", exist_ok=True)
-            torch.save(model.state_dict(), "app/models/resnet_criminality.pth")
+        model.train()
+        for imgs, labels, _, _ in train_loader:
+            imgs, labels = imgs.to(device), labels.to(device).unsqueeze(1)
+            optimizer.zero_grad(); loss = criterion(model(imgs), labels); loss.backward(); optimizer.step()
+        print(f"Época {epoch+1} completada.")
 
-    # 4. Auditoría de Sesgo Final (Matriz de Confusión)
-    run_bias_audit(model, val_loader, device, model_name="ResNet50_Final")
+    # 2. Matriz de Confusión (vía Engine)
+    # Adaptamos temporalmente el loader para engine.py
+    simple_val_loader = DataLoader(val_ds, batch_size=32) 
+    run_bias_audit(model, simple_val_loader, device, "ResNet50_Final")
 
-    return model, val_loader, device
+    return model, val_ds, device
 
-def classify_from_url(url: str, model_path: str = "app/models/resnet_criminality.pth"):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = CriminalityResNet().to(device)
-    if os.path.exists(model_path):
-        model.load_state_dict(torch.load(model_path, map_location=device))
+def visual_explanation(model, img_tensor, orig_path, label_real, dataset_name, device):
     model.eval()
+    target_layers = [model.resnet.layer4[-1]]
+    cam = GradCAM(model=model, target_layers=target_layers)
+    
+    input_tensor = img_tensor.unsqueeze(0).to(device)
+    grayscale_cam = cam(input_tensor=input_tensor)[0, :]
+    
+    img_pil = Image.open(orig_path).convert('RGB').resize((224, 224))
+    visualization = show_cam_on_image(np.array(img_pil)/255.0, grayscale_cam, use_rgb=True)
+    
+    prob = model(input_tensor).item()
+    pred = "Riesgo" if prob > 0.5 else "No Riesgo"
+    
+    plt.figure(figsize=(6,6))
+    plt.imshow(visualization)
+    plt.title(f"Real: {dataset_name} | Pred: {pred} ({prob:.2%})\nArchivo: {os.path.basename(orig_path)}")
+    plt.axis('off')
+    
+    os.makedirs("reports", exist_ok=True)
+    nombre_archivo = f"reports/heatmap_{os.path.basename(orig_path)}"
+    plt.savefig(nombre_archivo, bbox_inches='tight')
+    print(f"Mapa de calor guardado con éxito en: {nombre_archivo}")
+    
+    plt.close() 
 
+
+def classify_from_url(model, url: str, device, person_name: str):
+    """Descarga una imagen de internet, predice el riesgo y guarda el Grad-CAM."""
+    model.eval()
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers)
-        img = Image.open(BytesIO(response.content)).convert('RGB')
-        input_tensor = val_transforms(img).unsqueeze(0).to(device)
-        with torch.no_grad():
-            prob_risk = model(input_tensor).item()
+        orig_img = Image.open(BytesIO(response.content)).convert('RGB')
         
-        clase = "RIESGO" if prob_risk > 0.5 else "ESTÁNDAR"
-        plt.imshow(img)
-        plt.title(f"Predicción: {clase} ({prob_risk*100:.2f}%)")
+        from dataset import val_transforms 
+        input_tensor = val_transforms(orig_img).unsqueeze(0).to(device)
+        
+        with torch.no_grad():
+            prob = model(input_tensor).item()
+        pred_label = "Riesgo" if prob > 0.5 else "No Riesgo"
+        
+        target_layers = [model.resnet.layer4[-1]]
+        cam = GradCAM(model=model, target_layers=target_layers)
+        grayscale_cam = cam(input_tensor=input_tensor)[0, :]
+        
+        img_pil_resized = orig_img.resize((224, 224))
+        visualization = show_cam_on_image(np.array(img_pil_resized)/255.0, grayscale_cam, use_rgb=True)
+        
+        plt.figure(figsize=(6,6))
+        plt.imshow(visualization)
+        plt.title(f"Sujeto: {person_name}\nPredicción: {pred_label} ({prob:.2%})")
         plt.axis('off')
-        plt.show()
+        
+        os.makedirs("reports", exist_ok=True)
+        nombre_archivo = f"reports/url_{person_name.replace(' ', '_').lower()}.png"
+        plt.savefig(nombre_archivo, bbox_inches='tight')
+        print(f"Análisis URL guardado con éxito en: {nombre_archivo}")
+        plt.close()
+        
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error procesando la URL de {person_name}: {e}")

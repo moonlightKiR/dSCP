@@ -1,13 +1,23 @@
 import os
 
+# 1. Ruta base del proyecto
 BASE_PATH = "/content/drive/MyDrive/dsCP/dSCP"
 
+# 2. Rutas de IMÁGENES ORIGINALES (Entrada)
 ILLINOIS_PATH = os.path.join(BASE_PATH, "data/illinois/front/front")
 LFW_PATH = os.path.join(BASE_PATH, "data/lfw/lfw-deepfunneled/lfw-deepfunneled")
 
+# 3. Rutas de IMÁGENES PROCESADAS (Salida del MTCNN)
+# Aquí se guardarán las fotos recortadas solo con la cara
+PROCESSED_ROOT = os.path.join(BASE_PATH, "app/data_processed")
+PROCESSED_ILL_PATH = os.path.join(PROCESSED_ROOT, "illinois")
+PROCESSED_LFW_PATH = os.path.join(PROCESSED_ROOT, "lfw")
+
+# 4. Rutas de METADATOS (CSVs)
 ILLINOIS_CSV_PATH = os.path.join(BASE_PATH, "data/illinois/person.csv")
 LFW_CSV_PATH = os.path.join(BASE_PATH, "app/database/lfw_race_metadata.csv")
 
+# 5. Configuración Kaggle (Se mantiene igual)
 ILLINOIS_DB = "davidjfisher/illinois-doc-labeled-faces-dataset"
 LFW_DB = "jessicali9530/lfw-dataset"
 ILLINOIS_MD5 = "bbba276ae0449a0ee932cbc35057bce5"
