@@ -6,89 +6,114 @@ from pytorch_grad_cam.utils.image import show_cam_on_image
 import numpy as np
 from PIL import Image
 from torch.utils.data import DataLoader, random_split
-from models.resnet_model import CriminalityResNet
-from engine import train_one_epoch, evaluate, run_bias_audit
-from dataset import BalancedFaceDataset, train_transforms, val_transforms
-from database.config import ILLINOIS_CSV_PATH, LFW_CSV_PATH
 import requests
 from io import BytesIO
 
-def run_full_experiment(epochs=5):
+# Importes de tu estructura
+from models.resnet_model import CriminalityResNet
+from models.vgg_model import CriminalityVGG16
+from engine import train_one_epoch, evaluate, run_bias_audit
+from dataset import BalancedFaceDataset, train_transforms, val_transforms
+from database.config import ILLINOIS_CSV_PATH, LFW_CSV_PATH
+
+def run_full_experiment(model_type="resnet", epochs=5):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    # 1. Dataset
     ds = BalancedFaceDataset(ILLINOIS_CSV_PATH, LFW_CSV_PATH, transform=train_transforms)
-    train_ds, val_ds = random_split(ds, [int(0.8*len(ds)), len(ds)-int(0.8*len(ds))])
+    train_size = int(0.8 * len(ds))
+    val_size = len(ds) - train_size
+    train_ds, val_ds = random_split(ds, [train_size, val_size])
     
-    # Custom collate para manejar los paths
     def collate_fn(batch):
-        return torch.stack([x[0] for x in batch]), torch.stack([x[1] for x in batch]), [x[2] for x in batch], [x[3] for x in batch]
+        return (torch.stack([x[0] for x in batch]), 
+                torch.stack([x[1] for x in batch]), 
+                [x[2] for x in batch], 
+                [x[3] for x in batch])
 
     train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
-    val_loader = DataLoader(val_ds, batch_size=32, collate_fn=collate_fn)
 
-    model = CriminalityResNet().to(device)
-    optimizer = torch.optim.Adam(model.resnet.fc.parameters(), lr=1e-4)
+    if model_type.lower() == "vgg":
+        model = CriminalityVGG16().to(device)
+        model_name = "VGG16_Final"
+    else:
+        model = CriminalityResNet().to(device)
+        model_name = "ResNet50_Final"
+
+    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4)
     criterion = torch.nn.BCELoss()
 
-    # Entrenamiento (simplificado para el main)
+    print(f"\nIniciando entrenamiento del modelo: {model_name}")
     for epoch in range(epochs):
         model.train()
         for imgs, labels, _, _ in train_loader:
             imgs, labels = imgs.to(device), labels.to(device).unsqueeze(1)
-            optimizer.zero_grad(); loss = criterion(model(imgs), labels); loss.backward(); optimizer.step()
-        print(f"Época {epoch+1} completada.")
+            optimizer.zero_grad()
+            loss = criterion(model(imgs), labels)
+            loss.backward()
+            optimizer.step()
+        print(f"Época {epoch+1}/{epochs} completada.")
 
-    # 2. Matriz de Confusión (vía Engine)
-    # Adaptamos temporalmente el loader para engine.py
-    simple_val_loader = DataLoader(val_ds, batch_size=32) 
-    run_bias_audit(model, simple_val_loader, device, "ResNet50_Final")
+    audit_loader = DataLoader(val_ds, batch_size=32, collate_fn=collate_fn) 
+    run_bias_audit(model, audit_loader, device, model_name)
 
     return model, val_ds, device
 
 def visual_explanation(model, img_tensor, orig_path, label_real, dataset_name, device):
     model.eval()
-    target_layers = [model.resnet.layer4[-1]]
-    cam = GradCAM(model=model, target_layers=target_layers)
     
+    if hasattr(model, 'resnet'):
+        target_layers = [model.resnet.layer4[-1]]
+        m_type = "resnet"
+    elif hasattr(model, 'vgg'):
+        target_layers = [model.vgg.features[28]] 
+        m_type = "vgg"
+    else:
+        raise AttributeError("Modelo no reconocido")
+
+    cam = GradCAM(model=model, target_layers=target_layers)
     input_tensor = img_tensor.unsqueeze(0).to(device)
+    
     grayscale_cam = cam(input_tensor=input_tensor)[0, :]
     
     img_pil = Image.open(orig_path).convert('RGB').resize((224, 224))
-    visualization = show_cam_on_image(np.array(img_pil)/255.0, grayscale_cam, use_rgb=True)
+    img_array = np.array(img_pil) / 255.0
     
-    prob = model(input_tensor).item()
+    visualization = show_cam_on_image(img_array, grayscale_cam, use_rgb=True)
+    
+    with torch.no_grad():
+        prob = model(input_tensor).item()
     pred = "Riesgo" if prob > 0.5 else "No Riesgo"
     
     plt.figure(figsize=(6,6))
     plt.imshow(visualization)
-    plt.title(f"Real: {dataset_name} | Pred: {pred} ({prob:.2%})\nArchivo: {os.path.basename(orig_path)}")
+    plt.title(f"Modelo: {m_type.upper()} | Real: {dataset_name}\nPred: {pred} ({prob:.2%})")
     plt.axis('off')
     
     os.makedirs("reports", exist_ok=True)
-    nombre_archivo = f"reports/heatmap_{os.path.basename(orig_path)}"
+    nombre_archivo = f"reports/heatmap_{m_type}_{os.path.basename(orig_path)}"
     plt.savefig(nombre_archivo, bbox_inches='tight')
-    print(f"Mapa de calor guardado con éxito en: {nombre_archivo}")
-    
-    plt.close() 
-
+    print(f"[{m_type.upper()}] Mapa de calor guardado: {nombre_archivo}")
+    plt.close()
 
 def classify_from_url(model, url: str, device, person_name: str):
-    """Descarga una imagen de internet, predice el riesgo y guarda el Grad-CAM."""
     model.eval()
     try:
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
         orig_img = Image.open(BytesIO(response.content)).convert('RGB')
         
-        from dataset import val_transforms 
         input_tensor = val_transforms(orig_img).unsqueeze(0).to(device)
         
         with torch.no_grad():
             prob = model(input_tensor).item()
         pred_label = "Riesgo" if prob > 0.5 else "No Riesgo"
         
-        target_layers = [model.resnet.layer4[-1]]
+        if hasattr(model, 'resnet'):
+            target_layers = [model.resnet.layer4[-1]]
+            m_type = "resnet"
+        elif hasattr(model, 'vgg'):
+            target_layers = [model.vgg.features[28]]
+            m_type = "vgg"
+        
         cam = GradCAM(model=model, target_layers=target_layers)
         grayscale_cam = cam(input_tensor=input_tensor)[0, :]
         
@@ -97,14 +122,14 @@ def classify_from_url(model, url: str, device, person_name: str):
         
         plt.figure(figsize=(6,6))
         plt.imshow(visualization)
-        plt.title(f"Sujeto: {person_name}\nPredicción: {pred_label} ({prob:.2%})")
+        plt.title(f"Sujeto: {person_name}\n{m_type.upper()} | Pred: {pred_label} ({prob:.2%})")
         plt.axis('off')
         
         os.makedirs("reports", exist_ok=True)
-        nombre_archivo = f"reports/url_{person_name.replace(' ', '_').lower()}.png"
+        nombre_archivo = f"reports/url_{person_name.replace(' ', '_').lower()}_{m_type}.png"
         plt.savefig(nombre_archivo, bbox_inches='tight')
-        print(f"Análisis URL guardado con éxito en: {nombre_archivo}")
+        print(f"[{m_type.upper()}] Análisis URL guardado: {nombre_archivo}")
         plt.close()
         
     except Exception as e:
-        print(f"Error procesando la URL de {person_name}: {e}")
+        print(f"Error en URL de {person_name}: {e}")
