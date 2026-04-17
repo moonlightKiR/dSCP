@@ -25,7 +25,7 @@ class BalancedFaceDataset(Dataset):
         df_lfw = pd.read_csv(lfw_csv)
         df_lfw['race'] = df_lfw['race'].astype(str).str.lower().str.strip()
         df_lfw['filename'] = df_lfw['image_path'].apply(
-            lambda x: f"{os.path.basename(os.path.dirname(x))}_{os.path.basename(x)}"
+            lambda x: os.path.basename(x)
         )
 
         # 2. Filtrar solo los que realmente se procesaron bien en MTCNN

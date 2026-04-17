@@ -81,4 +81,4 @@ def run_bias_audit(model, loader, device, model_name="Modelo"):
     plt.show()
 
     print(f"\nInforme de Clasificación Detallado:")
-    print(classification_report(all_labels, all_preds, target_names=['No Riesgo', 'Riesgo']))
+    print(classification_report(all_labels, all_preds, labels=[0, 1], target_names=['No Riesgo', 'Riesgo']))

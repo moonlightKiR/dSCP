@@ -37,27 +37,31 @@ class DataPreprocessor:
     def run_full_preprocessing(self, illinois_limit=500, lfw_limit=500):
         """Recorre los datasets originales y crea las versiones sin fondo."""
         
+        # El Reconstructor mueve las fotos a una carpeta /faces
+        ill_faces_path = os.path.join(ILLINOIS_PATH, "faces")
+        lfw_faces_path = os.path.join(LFW_PATH, "faces")
+
         print("\nProcesando Illinois (Criminality)...")
-        ill_files = [f for f in os.listdir(ILLINOIS_PATH) if f.endswith('.jpg')][:illinois_limit]
-        for f in tqdm(ill_files):
-            self.process_single_image(
-                os.path.join(ILLINOIS_PATH, f),
-                os.path.join(PROCESSED_ILL_PATH, f)
-            )
+        if os.path.exists(ill_faces_path):
+            ill_files = [f for f in os.listdir(ill_faces_path) if f.endswith('.jpg')][:illinois_limit]
+            for f in tqdm(ill_files):
+                self.process_single_image(
+                    os.path.join(ill_faces_path, f),
+                    os.path.join(PROCESSED_ILL_PATH, f)
+                )
+        else:
+            print(f"ERROR: No se encontró la carpeta {ill_faces_path}")
 
         print("\nProcesando LFW (Standard)...")
-        # LFW tiene subcarpetas, usamos os.walk
-        count = 0
-        for root, _, files in os.walk(LFW_PATH):
-            for f in files:
-                if f.endswith('.jpg') and count < lfw_limit:
-                    # En LFW guardamos plano para facilitar la carga luego
-                    output_name = f"{os.path.basename(root)}_{f}"
-                    self.process_single_image(
-                        os.path.join(root, f),
-                        os.path.join(PROCESSED_LFW_PATH, output_name)
-                    )
-                    count += 1
+        if os.path.exists(lfw_faces_path):
+            lfw_files = [f for f in os.listdir(lfw_faces_path) if f.endswith('.jpg')][:lfw_limit]
+            for f in tqdm(lfw_files):
+                self.process_single_image(
+                    os.path.join(lfw_faces_path, f),
+                    os.path.join(PROCESSED_LFW_PATH, f)
+                )
+        else:
+            print(f"ERROR: No se encontró la carpeta {lfw_faces_path}")
 
     def show_example(self, original_path, processed_path):
         """Muestra la comparativa para el informe."""

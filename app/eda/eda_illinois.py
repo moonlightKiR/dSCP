@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
-from deepface import DeepFace
 from .eda_base import EDABase
 
 class IllinoisEDA(EDABase):
@@ -101,6 +100,12 @@ class IllinoisEDA(EDABase):
 
     def analyze_emotions(self, sample_size=50):
         """Uses DeepFace to analyze emotion distribution in Illinois."""
+        try:
+            from deepface import DeepFace
+        except (ImportError, ValueError):
+            print("WARNING: DeepFace incompatible. Saltando análisis de emociones en Illinois.")
+            return
+
         if not self.front_images: return
         
         print(f"Analyzing emotions for {min(sample_size, len(self.front_images))} images (DeepFace)...")

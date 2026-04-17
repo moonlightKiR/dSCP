@@ -69,36 +69,15 @@ class Reconstructor:
 
         files = sorted([f for f in source_dir.iterdir() if f.is_file()])
 
-        for i, file_path in enumerate(files, start=1):
-            new_name = f"{i}.jpg"
-            target_path = target_dir / new_name
+        for file_path in files:
+            target_path = target_dir / file_path.name
             shutil.move(str(file_path), str(target_path))
-            print(f"Movido y renombrado: {file_path.name} -> {new_name}")
+            print(f"Movido: {file_path.name}")
 
         print(
             f"Reorganización de ILLINOIS completada: "
             f"{len(files)} fotos en {target_dir}"
         )
-
-        # Eliminar la foto 2.jpg y reordenar para que sea continuo
-        file_to_remove = target_dir / "2.jpg"
-        if file_to_remove.exists():
-            file_to_remove.unlink()
-            print(f"Eliminado: {file_to_remove}")
-
-            # Reordenar los archivos restantes
-            remaining_files = sorted(
-                [f for f in target_dir.iterdir() if f.is_file()],
-                key=lambda x: int(x.stem),
-            )
-
-            for i, file_path in enumerate(remaining_files, start=1):
-                new_name = f"{i}.jpg"
-                new_path = target_dir / new_name
-                if file_path != new_path:
-                    file_path.rename(new_path)
-
-            print("Reordenación (sin salto en la 2) de ILLINOIS completada.")
 
         if (self.path_illinois / "front").exists():
             shutil.rmtree(self.path_illinois / "front", ignore_errors=True)
@@ -120,11 +99,11 @@ class Reconstructor:
         # Buscar recursivamente todos los ficheros .jpg
         image_files = sorted(list(source_dir.rglob("*.jpg")))
 
-        for i, file_path in enumerate(image_files, start=1):
-            new_name = f"{i}.jpg"
-            target_path = target_dir / new_name
+        for file_path in image_files:
+            # Mantener nombre original pero aplanado: AJ_Cook_0001.jpg
+            target_path = target_dir / file_path.name
             shutil.move(str(file_path), str(target_path))
-            print(f"Movido y renombrado: {file_path.name} -> {new_name}")
+            print(f"Movido: {file_path.name}")
 
         print(
             f"Reorganización de LFW completada: "
