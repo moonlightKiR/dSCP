@@ -1,7 +1,7 @@
-\section{El Problema}
+\section{Abstract}
 
-El objetivo es \textbf{diseñar una herramienta de análisis de datos} que, mediante el procesamiento de una fotografía facial, sea capaz de clasificar a un individuo y devolver un porcentaje de \textit{"probabilidad de tendencia criminal"}.
+Este estudio utiliza redes neuronales convolucionales (\textbf{ResNet50}) para clasificación biométrica, eliminando el sesgo de entorno (\textit{shortcut learning}). Mediante MTCNN se aislaron los rostros, forzando a la red a procesar rasgos faciales y no fondos institucionales. Así, el aprendizaje se basa exclusivamente en la morfología del sujeto.
 
-El sistema actuará como un recomendador que asocia \textbf{rasgos biométricos} específicos con etiquetas de conducta extraídas de bases de datos históricas.
+Se aplicó un balanceo demográfico estricto para mitigar sesgos raciales en la red neuronal. Mediante auditoría étnica, se conformó un dataset equitativo que neutraliza prejuicios estadísticos. Esto garantiza que las neuronas del modelo respondan a patrones universales, promoviendo una clasificación justa y técnicamente robusta.
 
-El dominio del problema es a \textit{Biometría Forense} aplicada a la \textbf{Seguridad} y la \textbf{Psicología de la Percepción}, buscamos extraer patrones faciales para resolver un problema de \textbf{identificación de riesgos}.
+El modelo alcanzó un 97\% de precisión tras el balanceo. La validación con Grad-CAM confirmó que la red focaliza su atención en zonas clave como la estructura ósea y los ojos. Se concluye que las redes neuronales requieren equilibrio poblacional y limpieza visual para evitar decisiones basadas en sesgos.
