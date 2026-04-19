@@ -3,3 +3,4 @@ reports/
 app/data_processed/
 *.pth
 app/models/*.pth
+__pycache__/
