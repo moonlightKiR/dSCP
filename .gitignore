@@ -1,14 +1,8 @@
 data/
 reports/
-app/data_processed/
+data_processed/
 *.pth
-app/models/*.pth
-__pycache__/
-
-data/
-reports/
-app/data_processed/
-*.pth
+*.pyc
 app/models/*.pth
 __pycache__/
 
