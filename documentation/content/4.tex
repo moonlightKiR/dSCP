@@ -1,8 +1,13 @@
 \section{El Algoritmo}
 
-Se implementará una arquitectura de \textbf{Deep Learning} basada en \textbf{CNN} (utilizando \textit{TensorFlow} o \textit{PyTorch} en \textit{Python}).
+Se ha implementado una arquitectura de \textbf{Deep Learning} basada en \textbf{Redes Neuronales Convolucionales (CNN)} utilizando el framework \textbf{PyTorch}. El enfoque se centra en el \textit{Transfer Learning} comparativo entre dos modelos punteros:
 
-La elección se justifica por su capacidad superior en la extracción de características jerárquicas y patrones espaciales complejos en datos no estructurados \textit{(imágenes)}.
+\begin{itemize}
+    \item \textbf{ResNet50:} Utilizando pesos preentrenados de ImageNet y desbloqueando el bloque \verb|layer4| para un ajuste fino (fine-tuning) específico al dominio biométrico.
+    \item \textbf{VGG-16:} Con una arquitectura clásica de 16 capas, donde se han reentrenado las últimas capas convolucionales y se ha rediseñado completamente el clasificador totalmente conectado.
+\end{itemize}
 
-Para el ajuste de hiperparámetros, se utilizará \textit{Optuna}.
+Ambos modelos terminan en una capa densa con activación \textbf{Sigmoide} para la clasificación binaria, optimizados mediante el algoritmo \textbf{Adam} con una tasa de aprendizaje de $1e-4$ y una función de pérdida de \textbf{Entropía Cruzada Binaria (BCELoss)}.
+
+La elección de estas arquitecturas se justifica por su probada eficacia en la extracción de características faciales complejas, permitiendo al modelo identificar sutiles patrones espaciales que diferencian el perfil de riesgo del estándar.
 \clearpage

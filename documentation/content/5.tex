@@ -1,10 +1,13 @@
 \section{El Proceso}
 
-El desarrollo seguirá las fases del proceso típico de minería de datos para transformar los píxeles brutos en conocimiento predictivo:
+El desarrollo se articula en un pipeline unificado que automatiza desde la adquisición de datos hasta la validación de resultados:
 
 \begin{itemize}
-    \item \textbf{Selección e Integración:} Se unificarán los datasets de \textit{LFW (control)} e \textit{Illinois DOC (riesgo)} para crear un conjunto de datos balanceado de entrenamiento y prueba.
-    \item \textbf{Preprocesamiento y Limpieza:} Se realizará un \textit{reescalado uniforme} de las imágenes y una \textit{normalización} de los valores de los píxeles \textbf{(escala 0-1)}. Se aplicará \textit{detección de landmarks faciales} para alinear los rostros, eliminando variaciones por inclinación que puedan sesgar el aprendizaje.
-    \item \textbf{Minería de Datos (Modelado):} Se configurará la arquitectura de la \textit{Red Neuronal Convolucional (CNN)}. Se integrará \textit{Optuna} para automatizar la búsqueda bayesiana de hiperparámetros (tasa de aprendizaje, tamaño de filtro y dropout), optimizando la convergencia del modelo.
-    \item \textbf{Extracción y Evaluación:} Se generarán las predicciones de probabilidad para el conjunto de test, analizando la activación de las capas convolucionales para interpretar qué rasgos faciales influyen más en la clasificación de \textit{"riesgo"}.
+    \item \textbf{Selección e Integración:} Se unifican los datasets de \textit{LFW (control)} e \textit{Illinois DOC (riesgo)}. Para garantizar la imparcialidad, se han generado metadatos de etnia para LFW mediante el modelo \textbf{DeepFace}, permitiendo un \textit{muestreo estratificado (4-way balance)} que equilibra fotos de individuos blancos y negros de ambas fuentes, mitigando sesgos algorítmicos históricos.
+
+    \item \textbf{Preprocesamiento y Limpieza (MTCNN):} Se utiliza la arquitectura \textbf{MTCNN (Multi-task Cascaded Convolutional Networks)} para detectar y extraer exclusivamente el óvalo facial de las imágenes originales, eliminando fondos, vestimenta o entornos que podrían confundir al clasificador. Las caras se reescalan a una resolución estándar de $224 \times 224$ píxeles y se normalizan con la media y desviación típica de ImageNet.
+
+    \item \textbf{Minería de Datos (Entrenamiento):} Se ejecutan experimentos comparativos entre \textbf{ResNet50} y \textbf{VGG-16}. El entrenamiento se acelera mediante hardware especializado (\textit{MPS} en Apple Silicon o \textit{CUDA} en NVIDIA), implementando aumentación de datos mediante volteos horizontales aleatorios para mejorar la robustez.
+
+    \item \textbf{Interpretación y Explicabilidad (Grad-CAM):} Se integra la técnica \textbf{Grad-CAM (Gradient-weighted Class Activation Mapping)} para generar mapas de calor sobre las fotos. Esto permite visualizar qué regiones del rostro (ojos, boca, mandíbula) están activando la predicción de "riesgo", aportando transparencia al "caja negra" del modelo.
 \end{itemize}

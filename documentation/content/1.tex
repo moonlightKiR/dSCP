@@ -1,7 +1,13 @@
-\section{El Problema}
+\begin{abstract}
+Este trabajo presenta el desarrollo de un sistema de visión artificial para la clasificación de perfiles de riesgo biométrico mediante el análisis de rasgos faciales. Utilizando técnicas de \textit{Deep Learning} y \textit{Transfer Learning} sobre las arquitecturas ResNet50 y VGG-16, se propone un pipeline automatizado que integra la detección facial mediante MTCNN y la mitigación de sesgos étnicos mediante un muestreo estratificado 4-way apoyado en DeepFace. Los modelos se entrenan combinando el dataset de control LFW con el registro criminal Illinois DOC. Los resultados demuestran la capacidad de las redes neuronales para identificar patrones espaciales complejos asociados a etiquetas de conducta histórica, evaluando la robustez del sistema mediante auditorías de sesgo y validación externa con figuras públicas, proporcionando transparencia algorítmica a través de mapas de calor Grad-CAM.
+\end{abstract}
 
-El objetivo es \textbf{diseñar una herramienta de análisis de datos} que, mediante el procesamiento de una fotografía facial, sea capaz de clasificar a un individuo y devolver un porcentaje de \textit{"probabilidad de tendencia criminal"}.
+\textbf{Palabras clave:} Biometría Forense, Deep Learning, ResNet50, VGG-16, Grad-CAM, Mitigación de Sesgo, MTCNN.
 
-El sistema actuará como un recomendador que asocia \textbf{rasgos biométricos} específicos con etiquetas de conducta extraídas de bases de datos históricas.
+\section{Introducción}
 
-El dominio del problema es a \textit{Biometría Forense} aplicada a la \textbf{Seguridad} y la \textbf{Psicología de la Percepción}, buscamos extraer patrones faciales para resolver un problema de \textbf{identificación de riesgos}.
+En la actualidad, la intersección entre la seguridad pública y la inteligencia artificial ha abierto nuevas vías para el análisis de riesgos. Este proyecto aborda el diseño de una herramienta de análisis de datos que, mediante el procesamiento de una fotografía facial, clasifica a un individuo según su potencial asociación con perfiles de conducta registrados en bases de datos criminales.
+
+La importancia de este trabajo radica en la automatización del reconocimiento de patrones biométricos que tradicionalmente han sido objeto de estudio en la psicología de la percepción y la criminología forense. El sistema actúa como un recomendador basado en evidencias históricas, asociando rasgos faciales específicos con etiquetas de riesgo.
+
+El marco de trabajo se encuadra en el aprendizaje supervisado profundo, utilizando arquitecturas de vanguardia para garantizar la precisión. El artículo se estructura detallando primero el estado de los datasets y la tecnología de preprocesamiento, seguido de la implementación de los modelos y, finalmente, una fase exhaustiva de experimentación y discusión cualitativa sobre la ética y los resultados obtenidos.

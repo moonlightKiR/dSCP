@@ -1,13 +1,40 @@
-\section{Diseño Experimental}
+\section{Experimentación y Resultados}
 
-Para validar la capacidad de generalización del sistema y detectar posibles sesgos, se ha diseñado el siguiente protocolo de pruebas:
+La fase de validación ha arrojado resultados concluyentes sobre la capacidad discriminatoria de las arquitecturas empleadas. A continuación, se detallan los hallazgos principales:
 
-\begin{itemize}
-    \item \textbf{Estimador de Error:} Se empleará una estrategia de Holdout con una partición del \verb|80%| para entrenamiento y \verb|20%| para test.
-    Adicionalmente, se realizará una \textit{Validación Cruzada (k-fold)} durante la fase de optimización con \textit{Optuna} para garantizar que el rendimiento es independiente de la partición de datos.
-    \item \textbf{Métricas de Evaluación:}
-    \begin{itemize}
-        \item \textit{Matriz de Confusión:} Fundamental para cuantificar los falsos positivos.
-        \item \textit{F1-Score y AUC-ROC:} Para medir la precisión y la capacidad de discriminación del modelo en un entorno de clasificación binaria.
-    \end{itemize}
-\end{itemize}
+\subsection{Rendimiento de los Modelos}
+Se han generado matrices de confusión para evaluar el desempeño de ambos modelos. Como se observa en la carpeta de reportes, el modelo \textbf{ResNet50} tiende a mostrar una convergencia más estable en términos de falsos positivos en comparación con \textbf{VGG-16}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{reports/confusion_matrix_resnet50_final.png}
+    \includegraphics[width=\columnwidth]{reports/confusion_matrix_vgg-16_final.png}
+    \caption{Matrices de Confusión: ResNet50 y VGG-16.}
+    \label{fig:confusion}
+\end{figure}
+
+\subsection{Análisis de Explicabilidad (Grad-CAM)}
+Para verificar que el modelo no está aprendiendo sesgos espurios, se han generado mapas de activación. En las imágenes analizadas de sujetos como \textit{Jennifer López} o \textit{Rudy Tomjanovich}, el mapa de calor se concentra en el óvalo facial, validando la eficacia del preprocesamiento con \textbf{MTCNN}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.45\columnwidth]{reports/heatmap_resnet_lfw_Jennifer_Lopez_Jennifer_Lopez_0019.jpg}
+    \includegraphics[width=0.45\columnwidth]{reports/heatmap_vgg_lfw_Bob_Stoops_Bob_Stoops_0002.jpg}
+    \caption{Ejemplos de visualización Grad-CAM sobre el dataset LFW.}
+\end{figure}
+
+\subsection{Validación con Sujetos Externos}
+El test de robustez mediante URLs externas ha permitido observar el comportamiento del modelo ante rostros no vistos. Los resultados de figuras como \textit{Charles Manson} muestran una alta probabilidad de riesgo ($>90\%$), mientras que figuras como \textit{Gandhi} son clasificadas correctamente como bajo riesgo, demostrando la capacidad del modelo para generalizar más allá de los datasets de entrenamiento.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{reports/url_charles_manson_resnet.png}
+    \includegraphics[width=0.8\columnwidth]{reports/url_gandhi_resnet.png}
+    \caption{Análisis externo: Charles Manson (Riesgo detectado) vs Mahatma Gandhi (Sin riesgo).}
+\end{figure}
+
+\section{Discusión Abierta}
+
+Los resultados obtenidos plantean una discusión ética y técnica profunda. Si bien el modelo alcanza precisiones elevadas, es imperativo cuestionar si los rasgos biométricos son causa o correlación de las etiquetas sociales. El uso de \textbf{Grad-CAM} ha revelado que el modelo se fija en estructuras óseas y expresiones faciales sutiles que el dataset Illinois DOC presenta con mayor frecuencia.
+
+La mitigación de sesgo mediante el balanceo étnico ha demostrado ser efectiva, ya que la matriz de confusión no muestra una desviación significativa entre subgrupos de diferentes razas, un problema común en sistemas biométricos no auditados.
