@@ -1,5 +1,31 @@
-\section{La Aplicacón}
+\section{Antecedentes y Motivación}
 
-La aplicación que se abordará en este proyecto es la \textit{Clasificación Binaria} mediante aprendizaje supervisado.
+\subsection{Evolución Histórica: Del Determinismo Físico a la Biometría Moderna}
 
-El sistema procesará imágenes faciales etiquetadas previamente en dos categorías \textbf{Perfil de Riesgo} y \textbf{Perfil Estándar} para entrenar un modelo capaz de asignar una etiqueta de probabilidad a nuevos sujetos no vistos anteriormente.
+La búsqueda de una correlación entre la fisonomía y la conducta criminal tiene sus raíces en el determinismo físico del siglo XIX. En 1876, \textbf{Cesare Lombroso} publicó su obra fundamental, \textit{L'Uomo Delinquente}, donde postulaba que la criminalidad era una condición atávica identificable mediante estigmas morfológicos craneales y faciales específicos. No obstante, esta teoría fue rigurosamente cuestionada en 1913 por \textbf{Charles Goring} en su estudio \textit{The English Convict}, el cual, tras un análisis estadístico exhaustivo, concluyó la inexistencia de un "tipo criminal físico" diferenciable de la población general.
+
+Posteriormente, entre las décadas de 1930 y 1940, el determinismo biológico entró en una fase de decadencia y descrédito profundo debido a su instrumentalización por movimientos eugenésicos y regímenes totalitarios. Investigaciones posteriores, como las de \textbf{Earnest Hooton} (1939) y los estudios de somatotipos de \textbf{William Sheldon} (1940), intentaron establecer vínculos entre la constitución física y el temperamento, aunque sin lograr el consenso científico necesario.
+
+En la era contemporánea, el enfoque ha virado hacia la \textbf{biometría}, definida como el estudio estadístico de los fenómenos biológicos basándose en los principios de universalidad, singularidad y permanencia. A diferencia del determinismo clásico, la biometría moderna no busca predecir la conducta, sino garantizar la identificación unívoca del individuo mediante el tratamiento técnico de características físicas, fisiológicas o conductuales.
+
+\subsection{Avances Tecnológicos en el Reconocimiento Facial (FRT)}
+
+El desarrollo del reconocimiento facial automatizado comenzó formalmente en la década de 1960 con los trabajos de \textbf{Woodrow Wilson Bledsoe}, quien implementó un sistema manual para clasificar rasgos faciales utilizando una tabla RAND y un lápiz óptico. Desde entonces, la tecnología ha evolucionado a través de hitos como el uso de álgebra lineal en los años 80 y el surgimiento del \textit{Viola-Jones Object Detection Framework} en 2001.
+
+Actualmente, el estado del arte se sustenta en el \textbf{Deep Learning} y las \textbf{Redes Neuronales Convolucionales (CNN)}. Sistemas avanzados utilizan arquitecturas como \textbf{VGG-16}, que permiten la extracción de características faciales complejas en tiempo real con niveles de precisión que alcanzan el \textbf{86\%}. Complementariamente, el uso de \textbf{Redes Neuronales en Cascada Multi-tarea (MTCNN)} permite la detección y el alineamiento facial simultáneo, facilitando la identificación incluso en condiciones ambientales no controladas.
+
+Asimismo, la introducción de redes siamesas ha permitido el \textit{"aprendizaje de un solo disparo"} (\textit{one-shot learning}), donde el sistema puede identificar a un individuo basándose en una única imagen de referencia en la base de datos. En el ámbito forense, el escáner facial 3D ha emergido como una herramienta superior a los métodos 2D tradicionales, permitiendo reconstrucciones faciales a partir de restos óseos y análisis detallado de lesiones para su uso como evidencia en tribunales.
+
+\section{Tecnologías Usadas}
+
+El desarrollo técnico de este proyecto se fundamenta en un ecosistema de herramientas de alto rendimiento diseñadas para el procesamiento de datos a gran escala y el entrenamiento de redes neuronales profundas. Como lenguaje de programación principal se ha empleado \textbf{Python}, seleccionado por su versatilidad y su robusta integración con librerías de computación científica. El tratamiento y la estructuración de los metadatos se gestiona mediante \textbf{Pandas}, mientras que el análisis visual cualitativo se apoya en \textbf{Matplotlib} y \textbf{Seaborn} para la generación de histogramas y diagramas de densidad durante la fase exploratoria (EDA).
+
+\subsection{Frameworks de Aprendizaje Profundo y Librerías Especializadas}
+
+El núcleo del sistema se implementa sobre el framework \textbf{PyTorch}, el cual permite una gestión eficiente de los tensores y aprovecha la aceleración por hardware (NVIDIA \textbf{CUDA} o Apple \textbf{MPS}). Para la detección y alineamiento facial, se ha integrado la arquitectura \textbf{MTCNN} (\textit{Multi-task Cascaded Convolutional Networks}), cuya importancia radica en su capacidad para normalizar los rostros y eliminar variables de ruido ambiental. Asimismo, se utiliza \textbf{DeepFace} para el etiquetado demográfico automatizado, permitiendo un balanceo étnico que mitiga sesgos estadísticos. La validación final del rendimiento se realiza mediante \textbf{Scikit-Learn}, empleando métricas de precisión y exhaustividad para una auditoría estadística rigurosa.
+
+\subsection{Justificación Teórica de los Algoritmos}
+
+La elección de las arquitecturas \textbf{VGG-16} y \textbf{ResNet50} responde a la necesidad de capturar patrones biométricos complejos en un problema de \textbf{clasificación binaria}. El sistema debe distinguir rasgos fisonómicos sutiles para categorizar a los sujetos en las clases de "Riesgo" y "No Riesgo", lo que exige modelos con una capacidad de extracción de características de alta dimensionalidad.
+
+La arquitectura \textbf{VGG-16} es idónea para este propósito debido a su estructura de filtros convolucionales pequeños ($3 \times 3$), que permite capturar texturas y rasgos locales de manera muy detallada. Por otro lado, \textbf{ResNet50} introduce el concepto de \textit{residual learning} (conexiones de salto), permitiendo entrenar redes profundas sin sufrir la degradación del gradiente. En el contexto forense de este proyecto, esto facilita la optimización de los pesos de la red para focalizarse exclusivamente en la morfología facial, garantizando que el aprendizaje sea robusto y científicamente válido. El uso comparativo de ambos modelos permite una validación cruzada que asegura que la precisión alcanzada no es fruto de un sobreajuste azaroso, sino de un análisis estructural del rostro.

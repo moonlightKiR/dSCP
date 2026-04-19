@@ -1,13 +1,42 @@
-\section{El Algoritmo}
+\section{Desarrollo de la propuesta}
 
-Se ha implementado una arquitectura de \textbf{Deep Learning} basada en \textbf{Redes Neuronales Convolucionales (CNN)} utilizando el framework \textbf{PyTorch}. El enfoque se centra en el \textit{Transfer Learning} comparativo entre dos modelos punteros:
+La implementación del sistema se articula como un pipeline de ingeniería de datos y visión artificial diseñado para garantizar la integridad morfológica y la equidad estadística. En esta sección se detalla la composición del corpus de datos, el flujo de trabajo integral y los criterios de parametrización de los modelos.
+
+\subsection{El Dataset: Recolección y Atributos}
+
+Para la construcción del modelo se han integrado dos fuentes de datos de referencia en el ámbito biométrico, accesibles a través de \textit{Kaggle}:
 
 \begin{itemize}
-    \item \textbf{ResNet50:} Utilizando pesos preentrenados de ImageNet y desbloqueando el bloque \verb|layer4| para un ajuste fino (fine-tuning) específico al dominio biométrico.
-    \item \textbf{VGG-16:} Con una arquitectura clásica de 16 capas, donde se han reentrenado las últimas capas convolucionales y se ha rediseñado completamente el clasificador totalmente conectado.
+    \item \textbf{Illinois DOC:} Un conjunto de datos gubernamental que contiene registros faciales de individuos con etiquetas de antecedentes criminales. Los atributos principales extraídos son la identidad (ID), la etnia (\textit{race}), el sexo y la fecha de nacimiento para el cálculo de la edad.
+    \item \textbf{LFW (Labeled Faces in the Wild):} Utilizado como grupo de control para representar el perfil de "No Riesgo". Dado que este dataset carecía de metadatos étnicos nativos, se ha empleado la arquitectura \textbf{DeepFace} para predecir y asignar etiquetas raciales, permitiendo así una auditoría demográfica paritaria.
 \end{itemize}
 
-Ambos modelos terminan en una capa densa con activación \textbf{Sigmoide} para la clasificación binaria, optimizados mediante el algoritmo \textbf{Adam} con una tasa de aprendizaje de $1e-4$ y una función de pérdida de \textbf{Entropía Cruzada Binaria (BCELoss)}.
+\subsection{Tratamiento de Datos y Normalización}
 
-La elección de estas arquitecturas se justifica por su probada eficacia en la extracción de características faciales complejas, permitiendo al modelo identificar sutiles patrones espaciales que diferencian el perfil de riesgo del estándar.
+La robustez del modelo depende críticamente de la fase de limpieza y preparación, gestionada por los módulos \texttt{reconstructor.py} y \texttt{preprocessor.py}:
+
+\begin{enumerate}
+    \item \textbf{Limpieza y Purga:} Se han eliminado archivos irrelevantes (registros no fotográficos, vistas de perfil y ficheros corruptos) mediante una lógica de filtrado selectivo. Los valores nulos en metadatos (\textit{N/A}) se gestionan durante la carga mediante una normalización de cadenas de texto.
+    \item \textbf{Aislamiento Facial (MTCNN):} Para evitar el \textit{shortcut learning}, se utiliza MTCNN para detectar y extraer exclusivamente el óvalo facial, escalando todas las muestras a una resolución estándar de $224 \times 224$ píxeles.
+    \item \textbf{Balanceo Estratificado (4-Way Sampling):} Se implementa un muestreo que garantiza que cada clase ("Riesgo" y "No Riesgo") contenga el mismo número de sujetos blancos y negros. Este balanceo al subgrupo de menor tamaño es fundamental para neutralizar sesgos raciales sistémicos en la predicción.
+    \item \textbf{Normalización Estadística:} Los tensores de imagen se normalizan utilizando la media y desviación típica de ImageNet ($\mu=[0.485, 0.456, 0.406]$, $\sigma=[0.229, 0.224, 0.225]$), alineando la distribución de los datos con los pesos preentrenados de las redes.
+\end{enumerate}
+
+\subsection{El Proceso Global (Pipeline)}
+
+El flujo de trabajo se ha automatizado íntegramente en \texttt{main.py}, siguiendo un esquema secuencial:
+\textbf{Validación de Estructura} $\rightarrow$ \textbf{Recuperación de Datasets} $\rightarrow$ \textbf{Auditoría EDA} $\rightarrow$ \textbf{Extracción Facial Masiva} $\rightarrow$ \textbf{Entrenamiento Comparativo} $\rightarrow$ \textbf{Generación de Mapas de Calor (Grad-CAM)}.
+
+Este diseño permite que el sistema sea reproducible y modular, facilitando el intercambio de arquitecturas o la inclusión de nuevas fuentes de datos sin alterar la lógica de procesamiento.
+
+\subsection{Configuración y Parametrización}
+
+El ajuste fino (\textit{fine-tuning}) de las redes \textbf{VGG-16} y \textbf{ResNet50} se ha realizado bajo los siguientes criterios técnicos:
+
+\begin{itemize}
+    \item \textbf{Optimizador Adam:} Seleccionado por su tasa de aprendizaje adaptativa, configurado en $1e-4$. Esta elección busca un equilibrio entre la velocidad de convergencia y la estabilidad del gradiente en las últimas capas de las CNN.
+    \item \textbf{Función de Pérdida (BCELoss):} Dado que el problema es una clasificación binaria, la \textit{Binary Cross Entropy} permite penalizar con precisión las desviaciones en las probabilidades predichas (0 a 1).
+    \item \textbf{Regularización (Dropout):} Se han integrado capas de Dropout ($0.3$ en ResNet y $0.5$ en VGG) para mitigar el riesgo de sobreajuste, forzando a la red a aprender características faciales globales en lugar de memorizar muestras específicas.
+    \item \textbf{Aceleración por Hardware:} El sistema detecta automáticamente la presencia de núcleos CUDA o MPS para optimizar el tiempo de computación de los tensores.
+\end{itemize}
 \clearpage

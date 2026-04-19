@@ -1,13 +1,86 @@
-\section{El Proceso}
+\section{Experimentación / Resultados obtenidos}
 
-El desarrollo se articula en un pipeline unificado que automatiza desde la adquisición de datos hasta la validación de resultados:
+\subsection{Diseño experimental}
 
-\begin{itemize}
-    \item \textbf{Selección e Integración:} Se unifican los datasets de \textit{LFW (control)} e \textit{Illinois DOC (riesgo)}. Para garantizar la imparcialidad, se han generado metadatos de etnia para LFW mediante el modelo \textbf{DeepFace}, permitiendo un \textit{muestreo estratificado (4-way balance)} que equilibra fotos de individuos blancos y negros de ambas fuentes, mitigando sesgos algorítmicos históricos.
+El rigor científico del estudio se sustenta en una metodología de validación diseñada para evaluar la capacidad de generalización de los modelos y la ausencia de sesgos discriminatorios.
 
-    \item \textbf{Preprocesamiento y Limpieza (MTCNN):} Se utiliza la arquitectura \textbf{MTCNN (Multi-task Cascaded Convolutional Networks)} para detectar y extraer exclusivamente el óvalo facial de las imágenes originales, eliminando fondos, vestimenta o entornos que podrían confundir al clasificador. Las caras se reescalan a una resolución estándar de $224 \times 224$ píxeles y se normalizan con la media y desviación típica de ImageNet.
+\subsubsection{Metodología de Entrenamiento y Test}
 
-    \item \textbf{Minería de Datos (Entrenamiento):} Se ejecutan experimentos comparativos entre \textbf{ResNet50} y \textbf{VGG-16}. El entrenamiento se acelera mediante hardware especializado (\textit{MPS} en Apple Silicon o \textit{CUDA} en NVIDIA), implementando aumentación de datos mediante volteos horizontales aleatorios para mejorar la robustez.
+Se ha implementado un método de validación \textbf{Hold-out 80/20}. El dataset balanceado se divide aleatoriamente en un $80\%$ para el entrenamiento y un $20\%$ para el test. Esta partición garantiza que el modelo sea evaluado con rostros que no han intervenido en el proceso de aprendizaje. El entrenamiento se ejecuta durante un ciclo de épocas controlado con un tamaño de lote (\textit{batch size}) de 64 imágenes para estabilizar el gradiente.
 
-    \item \textbf{Interpretación y Explicabilidad (Grad-CAM):} Se integra la técnica \textbf{Grad-CAM (Gradient-weighted Class Activation Mapping)} para generar mapas de calor sobre las fotos. Esto permite visualizar qué regiones del rostro (ojos, boca, mandíbula) están activando la predicción de "riesgo", aportando transparencia al "caja negra" del modelo.
-\end{itemize}
+\subsubsection{Métricas de Evaluación}
+
+Para una auditoría exhaustiva del rendimiento, el sistema genera automáticamente un informe analizando la \textbf{Exactitud (Accuracy)}, el \textbf{F1-score} (media armónica entre precisión y exhaustividad) y la \textbf{Matriz de Confusión}, representación visual clave para identificar si el modelo tiene sesgos hacia alguna de las clases.
+
+\subsection{Resultados y análisis}
+
+Tras la ejecución de los experimentos sobre las arquitecturas ResNet50 y VGG-16, se han extraído datos que confirman la viabilidad de la propuesta técnica.
+
+\subsubsection{Rendimiento Estadístico (Matrices de Confusión)}
+
+Como se observa en las figuras \ref{fig:matriz_resnet} y \ref{fig:matriz_vgg}, ambos modelos muestran una convergencia excepcional. La diagonal principal de las matrices confirma que la gran mayoría de los sujetos son categorizados correctamente. La alta precisión alcanzada (superior al $97\%$) demuestra que el rostro contiene suficiente información biométrica para diferenciar los perfiles.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{../reports/confusion_matrix_resnet50_final.png}
+    \caption{Matriz de Confusión: ResNet50. Se observa un equilibrio casi perfecto entre clases.}
+    \label{fig:matriz_resnet}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{../reports/confusion_matrix_vgg-16_final.png}
+    \caption{Matriz de Confusión: VGG-16. Rendimiento sólido con ligera variación en falsos positivos.}
+    \label{fig:matriz_vgg}
+\end{figure}
+
+\subsubsection{Análisis de Explicabilidad (Grad-CAM)}
+
+Para validar que las predicciones se basan en la morfología facial, se han generado mapas de calor mediante \textbf{Grad-CAM}. Como se observa en la Figura \ref{fig:gradcam}, las redes focalizan su atención en regiones críticas como el arco orbital y la estructura cigomática, ignorando fondos o elementos externos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_resnet_lfw_Jennifer_Lopez_Jennifer_Lopez_0019.jpg}
+    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_vgg_lfw_Bob_Stoops_Bob_Stoops_0002.jpg}
+    \caption{Mapas de calor Grad-CAM (ResNet vs VGG). La activación se concentra exclusivamente en el óvalo facial procesado.}
+    \label{fig:gradcam}
+\end{figure}
+
+\subsubsection{Validación con Sujetos Externos (URLs)}
+
+La prueba definitiva de robustez consiste en la clasificación de rostros ajenos al dataset. A continuación se presentan las comparativas entre \textbf{ResNet50} (Izquierda) y \textbf{VGG-16} (Derecha) para distintos perfiles:
+
+Sujetos como \textbf{Charles Manson} muestran una probabilidad de riesgo superior al $90\%$, centrando la atención en la región frontal y orbital.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/url_charles_manson_resnet.png}
+    \includegraphics[width=0.48\columnwidth]{../reports/url_charles_manson_vgg.png}
+    \caption{Comparativa Manson: ResNet50 vs VGG-16.}
+\end{figure}
+
+En contraste, figuras como \textbf{Mahatma Gandhi} son clasificadas correctamente como "No Riesgo" por ambas redes, validando la ausencia de estigmas fisonómicos de riesgo.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/url_gandhi_resnet.png}
+    \includegraphics[width=0.48\columnwidth]{../reports/url_gandhi_vgg.png}
+    \caption{Comparativa Gandhi: ResNet50 vs VGG-16.}
+\end{figure}
+
+Se incluye también el análisis de \textbf{Donald Trump} como perfil estándar de control externo para evaluar la generalización del modelo ante figuras de alta relevancia pública.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/url_donald_trump_resnet.png}
+    \includegraphics[width=0.48\columnwidth]{../reports/url_donald_trump_vgg.png}
+    \caption{Comparativa Trump: ResNet50 vs VGG-16.}
+\end{figure}
+
+Finalmente, se realiza la validación sobre rostros femeninos externos como el de \textbf{María Corina Machado}, confirmando la consistencia en el aprendizaje de rasgos morfológicos esenciales.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/url_maria_corina_machado_resnet.png}
+    \includegraphics[width=0.48\columnwidth]{../reports/url_maria_corina_machado_vgg.png}
+    \caption{Comparativa M.C. Machado: ResNet50 vs VGG-16.}
+\end{figure}
+
+Este análisis cualitativo confirma que, aunque las arquitecturas difieren, el aprendizaje converge hacia los mismos patrones esenciales.
+\clearpage
