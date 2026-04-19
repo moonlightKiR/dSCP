@@ -1,7 +1,14 @@
-\contentsline {section}{\numberline {1}El Problema}{2}{section.1}%
+\contentsline {section}{\numberline {1}Introducción}{2}{section.1}%
 \contentsline {section}{\numberline {2}La Aplicacón}{2}{section.2}%
 \contentsline {section}{\numberline {3}Los Datasets}{2}{section.3}%
 \contentsline {section}{\numberline {4}El Algoritmo}{2}{section.4}%
 \contentsline {section}{\numberline {5}El Proceso}{3}{section.5}%
-\contentsline {section}{\numberline {6}Diseño Experimental}{3}{section.6}%
-\contentsline {section}{\numberline {7}Descarga Base De datos Illinois}{3}{section.7}%
+\contentsline {section}{\numberline {6}Experimentación y Resultados}{3}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Rendimiento de los Modelos}{3}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Análisis de Explicabilidad (Grad-CAM)}{3}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Validación con Sujetos Externos}{4}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Discusión Abierta}{4}{section.7}%
+\contentsline {section}{\numberline {8}Gestión de la Base de Datos}{4}{section.8}%
+\contentsline {section}{\numberline {9}Conclusiones y Líneas Abiertas}{4}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Líneas Futuras de Investigación}{5}{subsection.9.1}%
+\contentsline {section}{\numberline {10}Referencias}{5}{section.10}%
