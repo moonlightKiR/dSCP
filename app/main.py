@@ -34,7 +34,12 @@ def main():
     print("\n[PASO 1] Ejecutando EDA sobre imágenes originales...")
     ill_eda = IllinoisEDA(ILLINOIS_PATH, ILLINOIS_CSV_PATH)
     lfw_eda = LFWEDA(LFW_PATH)
-    ill_eda.run_all()
+    
+    print(">> Ejecutando análisis para Illinois...")
+    ill_eda.run_all() 
+    
+    print(">> Ejecutando análisis para LFW...")
+    lfw_eda.run_all()
 
     if not os.path.exists(LFW_CSV_PATH) or os.path.getsize(LFW_CSV_PATH) == 0:
         print(">> Generando metadatos étnicos de LFW (DeepFace)...")
@@ -96,6 +101,7 @@ def main():
     print("   TODOS LOS EXPERIMENTOS HAN FINALIZADO CON ÉXITO")
     print("   Revisa la carpeta /reports para ver los resultados comparativos.")
     print("="*60)
+
 
 if __name__ == "__main__":
     main()
