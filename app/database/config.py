@@ -1,14 +1,14 @@
 import os
 
 # 1. Ruta base del proyecto
-BASE_PATH = "/content/drive/MyDrive/dsCP/dSCP"
+BASE_PATH = os.getcwd()
 
 # 2. Rutas de IMÁGENES ORIGINALES (Entrada)
-ILLINOIS_PATH = os.path.join(BASE_PATH, "data/illinois/front/front")
-LFW_PATH = os.path.join(BASE_PATH, "data/lfw/lfw-deepfunneled/lfw-deepfunneled")
+# Apuntamos a la raíz del dataset para que el Reconstructor gestione las subcarpetas
+ILLINOIS_PATH = os.path.join(BASE_PATH, "data/illinois")
+LFW_PATH = os.path.join(BASE_PATH, "data/lfw")
 
 # 3. Rutas de IMÁGENES PROCESADAS (Salida del MTCNN)
-# Aquí se guardarán las fotos recortadas solo con la cara
 PROCESSED_ROOT = os.path.join(BASE_PATH, "app/data_processed")
 PROCESSED_ILL_PATH = os.path.join(PROCESSED_ROOT, "illinois")
 PROCESSED_LFW_PATH = os.path.join(PROCESSED_ROOT, "lfw")

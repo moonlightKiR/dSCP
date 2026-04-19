@@ -102,10 +102,17 @@ class LFWEDA(EDABase):
         sample_df = self.df.sample(n=min(sample_size, len(self.df)), random_state=42)
         emotions = []
 
-        print(f"Analyzing emotions for {len(sample_df)} images (using DeepFace)...")
+        print(f"Analyzing emotions for {len(sample_df)} images (using DeepFace en {self.device})...")
         for path in tqdm(sample_df['Image_Path']):
             try:
-                analysis = DeepFace.analyze(path, actions=['emotion'], enforce_detection=False, silent=True)
+                # Usamos detector_backend='skip' si las caras ya están alineadas/recortadas para máxima velocidad
+                analysis = DeepFace.analyze(
+                    path, 
+                    actions=['emotion'], 
+                    enforce_detection=False, 
+                    detector_backend='opencv', # Opencv es el más rápido para CPU/GPU básico
+                    silent=True
+                )
                 emotion = analysis[0]['dominant_emotion'] if isinstance(analysis, list) else analysis['dominant_emotion']
                 emotions.append(emotion)
             except Exception:
@@ -131,19 +138,27 @@ class LFWEDA(EDABase):
 
     def generate_ethnicity_csv(self, output_csv_path="lfw_race_metadata.csv"):
         """
-        Usa DeepFace para predecir la etnia de cada imagen en LFW y genera un CSV 
-        compatible con el de Illinois para facilitar el balanceo.
+        Usa DeepFace para predecir la etnia de cada imagen en LFW y genera un CSV.
+        Optimizado para usar aceleración por hardware.
         """
         if self.df is None: 
             self.build_dataframe()
 
-        print(f"Iniciando escaneo de etnias para {len(self.df)} imágenes...")
+        print(f"🚀 Iniciando escaneo de etnias para {len(self.df)} imágenes en {self.device}...")
         results = []
         
+        # Procesamiento secuencial pero optimizado por el backend de TensorFlow
         for _, row in tqdm(self.df.iterrows(), total=len(self.df)):
             img_path = row['Image_Path']
             try:
-                analysis = DeepFace.analyze(img_path, actions=['race'], enforce_detection=False, silent=True)
+                # detector_backend='opencv' es el equilibrio perfecto entre velocidad y precisión
+                analysis = DeepFace.analyze(
+                    img_path, 
+                    actions=['race'], 
+                    enforce_detection=False, 
+                    detector_backend='opencv',
+                    silent=True
+                )
                 dominant_race = analysis[0]['dominant_race']
                 
                 results.append({
@@ -151,7 +166,7 @@ class LFWEDA(EDABase):
                     'race': dominant_race,
                     'label': 0 # No Riesgo
                 })
-            except Exception as e:
+            except Exception:
                 continue
 
         df_race = pd.DataFrame(results)

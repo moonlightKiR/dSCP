@@ -1,5 +1,4 @@
 import shutil
-import hashlib
 from pathlib import Path
 from .kaggle_retreiver import KaggleRetreiver
 from .reconstructor import Reconstructor
@@ -8,8 +7,6 @@ from .config import (
     ILLINOIS_PATH,
     LFW_DB,
     LFW_PATH,
-    ILLINOIS_MD5,
-    LFW_MD5,
 )
 
 
@@ -18,89 +15,52 @@ class Checker:
         self.path_illinois = Path(ILLINOIS_PATH)
         self.path_lfw = Path(LFW_PATH)
 
-    def _check_illinois(self) -> bool:
-        if not self.path_illinois.exists():
-            print(
-                f"ERROR: Directorio ILLINOIS no existe en {self.path_illinois}"
-            )
+    def _is_structure_correct(self, dataset_path: Path, last_filename: str) -> bool:
+        """Verifica si existe la carpeta 'faces', el último archivo y la cantidad total."""
+        faces_dir = dataset_path / "faces"
+        if not faces_dir.exists() or not faces_dir.is_dir():
+            return False
+        
+        # Verificar existencia del último archivo
+        last_file = faces_dir / last_filename
+        if not last_file.exists():
             return False
 
-        has_data = any(self.path_illinois.iterdir())
-        if has_data:
-            print("Directorio ILLINOIS correcto (no vacío).")
-        else:
-            print("ERROR: Directorio ILLINOIS está vacío.")
-        return has_data
-
-    def _check_lfw(self) -> bool:
-        if not self.path_lfw.exists():
-            print(f"ERROR: Directorio LFW no existe en {self.path_lfw}")
-            return False
-
-        has_data = any(self.path_lfw.iterdir())
-        if has_data:
-            print("Directorio LFW correcto (no vacío).")
-        else:
-            print("ERROR: Directorio LFW está vacío.")
-        return has_data
-
-    def _calculate_data_md5(self, path: str):
-
-        data_path = Path(path)
-        if not data_path.exists():
-            print(f"ERROR: El directorio {path} no existe.")
-            return None
-
-        print(
-            f"Calculando MD5 de la carpeta {path}"
-            "(esto puede tardar un poco)..."
-        )
-        md5_hash = hashlib.md5()
-
-        files = sorted(
-            [
-                f
-                for f in data_path.rglob("*")
-                if f.is_file()
-                and f.name != ".DS_Store"
-                and not f.name.startswith("._")
-            ]
-        )
-
-        for file_path in files:
-            md5_hash.update(str(file_path.relative_to(data_path)).encode())
-            with open(file_path, "rb") as f:
-                for chunk in iter(lambda: f.read(4096), b""):
-                    md5_hash.update(chunk)
-
-        result = md5_hash.hexdigest()
-        print(f"MD5 de la carpeta data: {result}")
-        return result
+        # Verificar cantidad total de archivos (asumiendo que last_filename es el número total)
+        try:
+            expected_count = int(Path(last_filename).stem)
+            actual_count = len(list(faces_dir.glob("*.jpg")))
+            
+            if actual_count != expected_count:
+                print(f"Error de estructura: Se esperaban {expected_count} fotos, pero se encontraron {actual_count}.")
+                return False
+        except ValueError:
+            pass
+            
+        return True
 
     def full_check(self):
         database = KaggleRetreiver()
         reconstructor = Reconstructor()
 
-        illinois_md5 = self._calculate_data_md5(ILLINOIS_PATH)
-        if illinois_md5 != ILLINOIS_MD5:
-            print("Illinois data corrupted or missing, redownloading...")
-            shutil.rmtree(ILLINOIS_PATH, ignore_errors=True)
+        print("--- Verificando Dataset ILLINOIS ---")
+        # Se espera que Illinois tenga hasta la foto 68491.jpg
+        if not self._is_structure_correct(self.path_illinois, "68491.jpg"):
+            print("Estructura de Illinois incorrecta o incompleta. Reconstruyendo...")
+            shutil.rmtree(self.path_illinois, ignore_errors=True)
             database.download_data(ILLINOIS_DB, ILLINOIS_PATH)
             reconstructor.clean_illinois()
             reconstructor.reorganize_illinois()
         else:
-            print("All ILLINOIS data ok!")
-            # Aseguramos que las carpetas extras estén borradas aunque el MD5 sea correcto
-            reconstructor.clean_illinois()
+            print("Estructura de ILLINOIS correcta (última foto 68491.jpg encontrada).")
 
-        lfw_md5 = self._calculate_data_md5(LFW_PATH)
-        if lfw_md5 != LFW_MD5:
-            print("LFW data corrupted or missing, redownloading...")
-            shutil.rmtree(LFW_PATH, ignore_errors=True)
+        print("\n--- Verificando Dataset LFW ---")
+        # Se espera que LFW tenga hasta la foto 13233.jpg
+        if not self._is_structure_correct(self.path_lfw, "13233.jpg"):
+            print("Estructura de LFW incorrecta o incompleta. Reconstruyendo...")
+            shutil.rmtree(self.path_lfw, ignore_errors=True)
             database.download_data(LFW_DB, LFW_PATH)
             reconstructor.clean_lfw()
             reconstructor.reorganize_lfw()
         else:
-            print("All LFW data ok!")
-            # Aseguramos limpieza de LFW también
-            reconstructor.clean_lfw()
+            print("Estructura de LFW correcta (última foto 13233.jpg encontrada).")

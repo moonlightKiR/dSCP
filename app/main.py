@@ -23,17 +23,10 @@ def main():
     print("INICIANDO PIPELINE DE DETECCIÓN BIOMÉTRICA...")
 # 1. CHECKER: Comprobación rápida (Solo cuenta si hay archivos, ignora MD5)
     print("\n[PASO 0] Verificando datos originales...")
-    """
-    if not os.path.exists(ILLINOIS_PATH) or len(os.listdir(ILLINOIS_PATH)) < 1000:
-        print(">> Faltan datos originales. Ejecutando descarga de emergencia...")
-        checker = Checker()
-        checker.full_check()
-    else:
-        print(">> ✅ Datos originales de Illinois y LFW detectados. Saltando descarga.")
-    # 1. CHECKER: Solo descarga si falta data original
+
     checker = Checker()
     checker.full_check()
-"""
+
     # 2. EDA: Con imágenes originales (con fondo)
     print("\n[PASO 1] Ejecutando EDA sobre imágenes originales...")
     ill_eda = IllinoisEDA(ILLINOIS_PATH, ILLINOIS_CSV_PATH)
