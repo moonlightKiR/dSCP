@@ -139,19 +139,37 @@ class LFWEDA(EDABase):
     def generate_ethnicity_csv(self, output_csv_path="lfw_race_metadata.csv"):
         """
         Usa DeepFace para predecir la etnia de cada imagen en LFW y genera un CSV.
-        Optimizado para usar aceleración por hardware.
+        Incremental: si el CSV existe, carga los resultados y solo procesa lo nuevo.
         """
         if self.df is None: 
             self.build_dataframe()
 
-        print(f"🚀 Iniciando escaneo de etnias para {len(self.df)} imágenes en {self.device}...")
-        results = []
+        # 1. Cargar progreso previo si existe
+        existing_results = {}
+        if os.path.exists(output_csv_path) and os.path.getsize(output_csv_path) > 0:
+            try:
+                df_existing = pd.read_csv(output_csv_path)
+                existing_results = dict(zip(df_existing['image_path'], df_existing['race']))
+                print(f" Cargadas {len(existing_results)} entradas previas del CSV.")
+            except Exception as e:
+                print(f" No se pudo cargar el CSV existente: {e}")
+
+        # 2. Filtrar imágenes pendientes
+        pending_df = self.df[~self.df['Image_Path'].isin(existing_results.keys())]
+
+        if pending_df.empty:
+            print("Todas las imágenes ya están procesadas en el CSV.")
+            return pd.DataFrame([{'image_path': k, 'race': v, 'label': 0} for k, v in existing_results.items()])
+
+        print(f"Procesando {len(pending_df)} imágenes pendientes en {self.device}...")
+
+        results = [{'image_path': k, 'race': v, 'label': 0} for k, v in existing_results.items()]
         
-        # Procesamiento secuencial pero optimizado por el backend de TensorFlow
-        for _, row in tqdm(self.df.iterrows(), total=len(self.df)):
+        # 3. Procesamiento con guardado intermedio cada 100 imágenes
+        count = 0
+        for _, row in tqdm(pending_df.iterrows(), total=len(pending_df)):
             img_path = row['Image_Path']
             try:
-                # detector_backend='opencv' es el equilibrio perfecto entre velocidad y precisión
                 analysis = DeepFace.analyze(
                     img_path, 
                     actions=['race'], 
@@ -164,12 +182,23 @@ class LFWEDA(EDABase):
                 results.append({
                     'image_path': img_path,
                     'race': dominant_race,
-                    'label': 0 # No Riesgo
+                    'label': 0
                 })
+                
+                count += 1
+                # Guardado de seguridad cada 100 fotos
+                if count % 100 == 0:
+                    pd.DataFrame(results).to_csv(output_csv_path, index=False)
+                    
             except Exception:
                 continue
 
         df_race = pd.DataFrame(results)
+
+        # Asegurar que el directorio metadata existe antes de guardar
+        os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
+
         df_race.to_csv(output_csv_path, index=False)
-        print(f"✅ CSV de etnias generado en: {output_csv_path}")
+        print(f"✅ Proceso completado. CSV final en: {output_csv_path}")
         return df_race
+

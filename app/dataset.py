@@ -24,8 +24,9 @@ class BalancedFaceDataset(Dataset):
         
         df_lfw = pd.read_csv(lfw_csv)
         df_lfw['race'] = df_lfw['race'].astype(str).str.lower().str.strip()
+        # El preprocesador guarda como 'lfw_Nombre_Foto.jpg'
         df_lfw['filename'] = df_lfw['image_path'].apply(
-            lambda x: f"{os.path.basename(os.path.dirname(x))}_{os.path.basename(x)}"
+            lambda x: f"lfw_{os.path.basename(x)}"
         )
 
         # 2. Filtrar solo los que realmente se procesaron bien en MTCNN
@@ -36,12 +37,25 @@ class BalancedFaceDataset(Dataset):
         df_lfw = df_lfw[df_lfw['filename'].isin(lfw_proc)]
 
         # 3. Muestreo Estratificado (Balanceo 4-Way)
-        counts = [
-            len(df_ill[df_ill['race'] == 'white']), len(df_ill[df_ill['race'] == 'black']),
-            len(df_lfw[df_lfw['race'] == 'white']), len(df_lfw[df_lfw['race'] == 'black'])
-        ]
+        c_ill_w = len(df_ill[df_ill['race'] == 'white'])
+        c_ill_b = len(df_ill[df_ill['race'] == 'black'])
+        c_lfw_w = len(df_lfw[df_lfw['race'] == 'white'])
+        c_lfw_b = len(df_lfw[df_lfw['race'] == 'black'])
+
+        print(f"Subgrupos detectados:")
+        print(f" - Illinois (Blanco): {c_ill_w} | (Negro): {c_ill_b}")
+        print(f" - LFW (Blanco): {c_lfw_w} | (Negro): {c_lfw_b}")
+
+        counts = [c_ill_w, c_ill_b, c_lfw_w, c_lfw_b]
         min_size = min(counts)
-        print(f"⚖️ Balanceando dataset a {min_size} muestras por subgrupo (Total: {min_size*4})")
+
+        if min_size == 0:
+            print("ADVERTENCIA: Uno de los subgrupos tiene 0 muestras. El balanceo fallará.")
+            # Intentamos un balanceo mínimo si es posible, o lanzamos error claro
+            if sum(counts) == 0:
+                raise ValueError("No se encontraron imágenes válidas para ninguna clase.")
+        
+        print(f"Balanceando dataset a {min_size} muestras por subgrupo (Total: {min_size*4})")
 
         g1 = df_ill[df_ill['race'] == 'white'].sample(n=min_size, random_state=42)
         g2 = df_ill[df_ill['race'] == 'black'].sample(n=min_size, random_state=42)

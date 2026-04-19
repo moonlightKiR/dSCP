@@ -67,38 +67,18 @@ class Reconstructor:
 
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        files = sorted([f for f in source_dir.iterdir() if f.is_file()])
+        files = [f for f in source_dir.iterdir() if f.is_file()]
 
-        for i, file_path in enumerate(files, start=1):
-            new_name = f"{i}.jpg"
-            target_path = target_dir / new_name
+        for file_path in files:
+            # Mantener el nombre original (ej: A00147.jpg) para no romper el vínculo con el CSV
+            target_path = target_dir / file_path.name
             shutil.move(str(file_path), str(target_path))
-            print(f"Movido y renombrado: {file_path.name} -> {new_name}")
+            print(f"Movido: {file_path.name}")
 
         print(
             f"Reorganización de ILLINOIS completada: "
             f"{len(files)} fotos en {target_dir}"
         )
-
-        # Eliminar la foto 2.jpg y reordenar para que sea continuo
-        file_to_remove = target_dir / "2.jpg"
-        if file_to_remove.exists():
-            file_to_remove.unlink()
-            print(f"Eliminado: {file_to_remove}")
-
-            # Reordenar los archivos restantes
-            remaining_files = sorted(
-                [f for f in target_dir.iterdir() if f.is_file()],
-                key=lambda x: int(x.stem),
-            )
-
-            for i, file_path in enumerate(remaining_files, start=1):
-                new_name = f"{i}.jpg"
-                new_path = target_dir / new_name
-                if file_path != new_path:
-                    file_path.rename(new_path)
-
-            print("Reordenación (sin salto en la 2) de ILLINOIS completada.")
 
         if (self.path_illinois / "front").exists():
             shutil.rmtree(self.path_illinois / "front", ignore_errors=True)
@@ -118,13 +98,15 @@ class Reconstructor:
         target_dir.mkdir(parents=True, exist_ok=True)
 
         # Buscar recursivamente todos los ficheros .jpg
-        image_files = sorted(list(source_dir.rglob("*.jpg")))
+        image_files = list(source_dir.rglob("*.jpg"))
 
-        for i, file_path in enumerate(image_files, start=1):
-            new_name = f"{i}.jpg"
+        for file_path in image_files:
+            # En LFW, para evitar colisiones si hubiera nombres iguales en carpetas distintas,
+            # pero como LFW es Estructura Persona/Foto.jpg, usaremos Persona_Foto.jpg
+            new_name = f"{file_path.parent.name}_{file_path.name}"
             target_path = target_dir / new_name
             shutil.move(str(file_path), str(target_path))
-            print(f"Movido y renombrado: {file_path.name} -> {new_name}")
+            print(f"Movido y renombrado: {new_name}")
 
         print(
             f"Reorganización de LFW completada: "

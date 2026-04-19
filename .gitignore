@@ -1,5 +1,4 @@
 data/
-reports/
 data_processed/
 *.pth
 *.pyc
