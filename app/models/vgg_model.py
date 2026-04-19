@@ -26,7 +26,7 @@ class CriminalityVGG16(nn.Module):
             nn.Linear(4096, 512),
             nn.ReLU(True),
             nn.Linear(512, 1),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

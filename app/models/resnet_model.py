@@ -3,6 +3,7 @@ import torch.nn as nn
 from torchvision import models
 from torchvision.models import ResNet50_Weights
 
+
 class CriminalityResNet(nn.Module):
     def __init__(self, pretrained: bool = True):
         super(CriminalityResNet, self).__init__()
@@ -21,7 +22,7 @@ class CriminalityResNet(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.3),
             nn.Linear(512, 1),
-            nn.Sigmoid()  
+            nn.Sigmoid(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

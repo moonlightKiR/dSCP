@@ -9,6 +9,7 @@ from tqdm import tqdm
 from deepface import DeepFace
 from .eda_base import EDABase
 
+
 class LFWEDA(EDABase):
     def __init__(self, data_dir):
         super().__init__(data_dir)
@@ -21,67 +22,85 @@ class LFWEDA(EDABase):
         with os.scandir(self.data_dir) as entries:
             for entry in entries:
                 if entry.is_dir():
-                    images = [f for f in os.listdir(entry.path) if f.endswith(('.jpg', '.jpeg', '.png'))]
+                    images = [
+                        f
+                        for f in os.listdir(entry.path)
+                        if f.endswith((".jpg", ".jpeg", ".png"))
+                    ]
                     for img in images:
-                        data.append({
-                            'Name': entry.name.replace('_', ' '),
-                            'Image_Path': os.path.join(entry.path, img)
-                        })
+                        data.append(
+                            {
+                                "Name": entry.name.replace("_", " "),
+                                "Image_Path": os.path.join(entry.path, img),
+                            }
+                        )
 
         self.df = pd.DataFrame(data)
         if not self.df.empty:
-            photo_counts = self.df['Name'].value_counts().reset_index()
-            photo_counts.columns = ['Name', 'Num_Photos_per_Person']
-            self.df = self.df.merge(photo_counts, on='Name')
-            print(f"Total images: {len(self.df)} | Unique identities: {self.df['Name'].nunique()}")
+            photo_counts = self.df["Name"].value_counts().reset_index()
+            photo_counts.columns = ["Name", "Num_Photos_per_Person"]
+            self.df = self.df.merge(photo_counts, on="Name")
+            print(
+                f"Total images: {len(self.df)} | Unique identities: {self.df['Name'].nunique()}"
+            )
         return self.df
 
     def plot_top_identities(self, n=10):
         """Plots the Top N people with most photographs."""
-        if self.df is None: return
-        top_n = self.df['Name'].value_counts().head(n)
+        if self.df is None:
+            return
+        top_n = self.df["Name"].value_counts().head(n)
         plt.figure(figsize=(10, 5))
         sns.barplot(x=top_n.values, y=top_n.index, palette="mako")
-        plt.title(f'Top {n} People with most images in LFW')
-        plt.xlabel('Number of Photographs')
+        plt.title(f"Top {n} People with most images in LFW")
+        plt.xlabel("Number of Photographs")
         plt.tight_layout()
-        self.save_plot(plt, 'lfw_top_identities.png')
+        self.save_plot(plt, "lfw_top_identities.png")
         plt.close()
 
     def analyze_quality(self, sample_size=500):
         """Analyzes brightness and contrast on a sample of images."""
-        if self.df is None: return
-        sample_df = self.df.sample(n=min(sample_size, len(self.df)), random_state=42)
+        if self.df is None:
+            return
+        sample_df = self.df.sample(
+            n=min(sample_size, len(self.df)), random_state=42
+        )
         brightness, contrast = [], []
 
         print(f"Analyzing quality for {len(sample_df)} images...")
-        for path in tqdm(sample_df['Image_Path']):
+        for path in tqdm(sample_df["Image_Path"]):
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
             if img is not None:
                 brightness.append(np.mean(img))
                 contrast.append(np.std(img))
 
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-        sns.histplot(brightness, bins=30, kde=True, ax=axes[0], color='skyblue')
-        axes[0].set_title('Mean Brightness Distribution (Grayscale)')
-        sns.histplot(contrast, bins=30, kde=True, ax=axes[1], color='salmon')
-        axes[1].set_title('Contrast Distribution (Std Dev)')
+        sns.histplot(
+            brightness, bins=30, kde=True, ax=axes[0], color="skyblue"
+        )
+        axes[0].set_title("Mean Brightness Distribution (Grayscale)")
+        sns.histplot(contrast, bins=30, kde=True, ax=axes[1], color="salmon")
+        axes[1].set_title("Contrast Distribution (Std Dev)")
         plt.tight_layout()
-        self.save_plot(plt, 'lfw_image_quality.png')
+        self.save_plot(plt, "lfw_image_quality.png")
         plt.close()
 
     def generate_average_face(self, sample_size=500):
         """Generates an average face image from the dataset."""
-        if self.df is None: return
-        sample_df = self.df.sample(n=min(sample_size, len(self.df)), random_state=42)
-        first_img = cv2.imread(sample_df.iloc[0]['Image_Path'])
-        if first_img is None: return
-        
+        if self.df is None:
+            return
+        sample_df = self.df.sample(
+            n=min(sample_size, len(self.df)), random_state=42
+        )
+        first_img = cv2.imread(sample_df.iloc[0]["Image_Path"])
+        if first_img is None:
+            return
+
         avg_img = np.zeros_like(first_img, dtype=np.float32)
         valid_images = 0
-        
+
         print("Generating average face...")
-        for path in tqdm(sample_df['Image_Path']):
+        for path in tqdm(sample_df["Image_Path"]):
             img = cv2.imread(path)
             if img is not None and img.shape == first_img.shape:
                 avg_img += img
@@ -91,40 +110,51 @@ class LFWEDA(EDABase):
             avg_img = np.uint8(avg_img / valid_images)
             plt.figure(figsize=(6, 6))
             plt.imshow(cv2.cvtColor(avg_img, cv2.COLOR_BGR2RGB))
-            plt.title('Average Image (LFW)')
-            plt.axis('off')
-            self.save_plot(plt, 'lfw_average_face.png')
+            plt.title("Average Image (LFW)")
+            plt.axis("off")
+            self.save_plot(plt, "lfw_average_face.png")
             plt.close()
 
     def analyze_emotions(self, sample_size=50):
         """Analyzes emotions using DeepFace."""
-        if self.df is None: return
-        sample_df = self.df.sample(n=min(sample_size, len(self.df)), random_state=42)
+        if self.df is None:
+            return
+        sample_df = self.df.sample(
+            n=min(sample_size, len(self.df)), random_state=42
+        )
         emotions = []
 
-        print(f"Analyzing emotions for {len(sample_df)} images (using DeepFace en {self.device})...")
-        for path in tqdm(sample_df['Image_Path']):
+        print(
+            f"Analyzing emotions for {len(sample_df)} images (using DeepFace en {self.device})..."
+        )
+        for path in tqdm(sample_df["Image_Path"]):
             try:
                 # Usamos detector_backend='skip' si las caras ya están alineadas/recortadas para máxima velocidad
                 analysis = DeepFace.analyze(
-                    path, 
-                    actions=['emotion'], 
-                    enforce_detection=False, 
-                    detector_backend='opencv', # Opencv es el más rápido para CPU/GPU básico
-                    silent=True
+                    path,
+                    actions=["emotion"],
+                    enforce_detection=False,
+                    detector_backend="opencv",  # Opencv es el más rápido para CPU/GPU básico
+                    silent=True,
                 )
-                emotion = analysis[0]['dominant_emotion'] if isinstance(analysis, list) else analysis['dominant_emotion']
+                emotion = (
+                    analysis[0]["dominant_emotion"]
+                    if isinstance(analysis, list)
+                    else analysis["dominant_emotion"]
+                )
                 emotions.append(emotion)
             except Exception:
-                emotions.append('Unknown')
+                emotions.append("Unknown")
 
         emotion_counts = pd.Series(emotions).value_counts()
         plt.figure(figsize=(8, 5))
-        sns.barplot(x=emotion_counts.index, y=emotion_counts.values, palette="rocket")
-        plt.title('Emotion Distribution in LFW')
+        sns.barplot(
+            x=emotion_counts.index, y=emotion_counts.values, palette="rocket"
+        )
+        plt.title("Emotion Distribution in LFW")
         plt.xticks(rotation=45)
         plt.tight_layout()
-        self.save_plot(plt, 'lfw_emotions.png')
+        self.save_plot(plt, "lfw_emotions.png")
         plt.close()
 
     def run_all(self):
@@ -141,55 +171,72 @@ class LFWEDA(EDABase):
         Usa DeepFace para predecir la etnia de cada imagen en LFW y genera un CSV.
         Incremental: si el CSV existe, carga los resultados y solo procesa lo nuevo.
         """
-        if self.df is None: 
+        if self.df is None:
             self.build_dataframe()
 
         # 1. Cargar progreso previo si existe
         existing_results = {}
-        if os.path.exists(output_csv_path) and os.path.getsize(output_csv_path) > 0:
+        if (
+            os.path.exists(output_csv_path)
+            and os.path.getsize(output_csv_path) > 0
+        ):
             try:
                 df_existing = pd.read_csv(output_csv_path)
-                existing_results = dict(zip(df_existing['image_path'], df_existing['race']))
-                print(f" Cargadas {len(existing_results)} entradas previas del CSV.")
+                existing_results = dict(
+                    zip(df_existing["image_path"], df_existing["race"])
+                )
+                print(
+                    f" Cargadas {len(existing_results)} entradas previas del CSV."
+                )
             except Exception as e:
                 print(f" No se pudo cargar el CSV existente: {e}")
 
         # 2. Filtrar imágenes pendientes
-        pending_df = self.df[~self.df['Image_Path'].isin(existing_results.keys())]
+        pending_df = self.df[
+            ~self.df["Image_Path"].isin(existing_results.keys())
+        ]
 
         if pending_df.empty:
             print("Todas las imágenes ya están procesadas en el CSV.")
-            return pd.DataFrame([{'image_path': k, 'race': v, 'label': 0} for k, v in existing_results.items()])
+            return pd.DataFrame(
+                [
+                    {"image_path": k, "race": v, "label": 0}
+                    for k, v in existing_results.items()
+                ]
+            )
 
-        print(f"Procesando {len(pending_df)} imágenes pendientes en {self.device}...")
+        print(
+            f"Procesando {len(pending_df)} imágenes pendientes en {self.device}..."
+        )
 
-        results = [{'image_path': k, 'race': v, 'label': 0} for k, v in existing_results.items()]
-        
+        results = [
+            {"image_path": k, "race": v, "label": 0}
+            for k, v in existing_results.items()
+        ]
+
         # 3. Procesamiento con guardado intermedio cada 100 imágenes
         count = 0
         for _, row in tqdm(pending_df.iterrows(), total=len(pending_df)):
-            img_path = row['Image_Path']
+            img_path = row["Image_Path"]
             try:
                 analysis = DeepFace.analyze(
-                    img_path, 
-                    actions=['race'], 
-                    enforce_detection=False, 
-                    detector_backend='opencv',
-                    silent=True
+                    img_path,
+                    actions=["race"],
+                    enforce_detection=False,
+                    detector_backend="opencv",
+                    silent=True,
                 )
-                dominant_race = analysis[0]['dominant_race']
-                
-                results.append({
-                    'image_path': img_path,
-                    'race': dominant_race,
-                    'label': 0
-                })
-                
+                dominant_race = analysis[0]["dominant_race"]
+
+                results.append(
+                    {"image_path": img_path, "race": dominant_race, "label": 0}
+                )
+
                 count += 1
                 # Guardado de seguridad cada 100 fotos
                 if count % 100 == 0:
                     pd.DataFrame(results).to_csv(output_csv_path, index=False)
-                    
+
             except Exception:
                 continue
 
@@ -201,4 +248,3 @@ class LFWEDA(EDABase):
         df_race.to_csv(output_csv_path, index=False)
         print(f"✅ Proceso completado. CSV final en: {output_csv_path}")
         return df_race
-
