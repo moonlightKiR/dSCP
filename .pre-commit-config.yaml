@@ -11,3 +11,4 @@ repos:
       language: python
       pass_filenames: false
       entry: uv run ruff check app
+ 
