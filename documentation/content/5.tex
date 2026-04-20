@@ -18,7 +18,7 @@ Tras la ejecución de los experimentos sobre las arquitecturas ResNet50 y VGG-16
 
 \subsubsection{Rendimiento Estadístico (Matrices de Confusión)}
 
-Como se observa en las figuras \ref{fig:matriz_resnet} y \ref{fig:matriz_vgg}, ambos modelos muestran una convergencia excepcional. La diagonal principal de las matrices confirma que la gran mayoría de los sujetos son categorizados correctamente. La alta precisión alcanzada (superior al $97\%$) demuestra que el rostro contiene suficiente información biométrica para diferenciar los perfiles.
+Como se observa en las figuras \ref{fig:matriz_resnet} y \ref{fig:matriz_vgg}, ambos modelos muestran una convergencia excepcional. La diagonal principal de las matrices confirma que la gran mayoría de los sujetos son categorizados correctamente. La alta precisión alcanzada (superior al $97\%$) demuestra que el rostro podría contiener suficiente información biométrica para diferenciar los perfiles.
 
 \begin{figure}[H]
     \centering
@@ -36,7 +36,7 @@ Como se observa en las figuras \ref{fig:matriz_resnet} y \ref{fig:matriz_vgg}, a
 
 \subsubsection{Análisis de Explicabilidad (Grad-CAM)}
 
-Para validar que las predicciones se basan en la morfología facial, se han generado mapas de calor mediante \textbf{Grad-CAM}. Como se observa en la Figura \ref{fig:gradcam}, las redes focalizan su atención en regiones críticas como el arco orbital y la estructura cigomática, ignorando fondos o elementos externos.
+Para validar que las predicciones se basan en la morfología facial, se han generado mapas de calor mediante \textbf{Grad-CAM}. Como se observa en la Figura \ref{fig:gradcam}, las redes focalizan su atención en regiones críticas como el arco supraorbitario y la estructura cigomática, ignorando el fondo o los elementos externos para clasificar correctamente bajo la teoría de Cesare Lombroso. Como se observa al analizar las imágenes de test con los mapas de calor, el modelo identifica puntos exactos del rostro —o la ausencia de estos— en las personas sin riesgo.
 
 \begin{figure}[H]
     \centering
@@ -50,7 +50,7 @@ Para validar que las predicciones se basan en la morfología facial, se han gene
 
 La prueba definitiva de robustez consiste en la clasificación de rostros ajenos al dataset. A continuación se presentan las comparativas entre \textbf{ResNet50} (Izquierda) y \textbf{VGG-16} (Derecha) para distintos perfiles:
 
-Sujetos como \textbf{Charles Manson} muestran una probabilidad de riesgo superior al $90\%$, centrando la atención en la región frontal y orbital.
+Sujetos como \textbf{Charles Manson}, quien fue el líder de la secta criminal conocida como "La Familia Manson", a quienes manipuló para asesinar a siete personas en 1969. Tras ser condenado por estos crímenes, pasó el resto de su vida tras las rejas hasta su muerte en 2017, los modelos muestran probabilidades dispares, mientras que ResNet50 muestra una probabilidad de riesgo superior al $90\%$, VGG-16 muestra una probabilidad de no riesgo del $0.02\%$.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.48\columnwidth]{../reports/url_charles_manson_resnet.png}
@@ -58,7 +58,7 @@ Sujetos como \textbf{Charles Manson} muestran una probabilidad de riesgo superio
     \caption{Comparativa Manson: ResNet50 vs VGG-16.}
 \end{figure}
 
-En contraste, figuras como \textbf{Mahatma Gandhi} son clasificadas correctamente como "No Riesgo" por ambas redes, validando la ausencia de estigmas fisonómicos de riesgo.
+En contraste, figuras como \textbf{Mahatma Gandhi}, líder de la resistencia no violenta que logró la independencia de la India del dominio británico en 1947. Es un icono mundial de la paz, aunque su legado se ve empañado por comentarios racistas de juventud y polémicos experimentos personales con mujeres de su entorno, presenta la misma disparidad que el sujeto anterior, condenados por crímenes violentos, ResNet50 muestra una probabilidad de riesgo del $60.91\%$, mientras que VGG-16 muestra una probabilidad de no riesgo del $0.02\%$.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.48\columnwidth]{../reports/url_gandhi_resnet.png}
@@ -66,7 +66,7 @@ En contraste, figuras como \textbf{Mahatma Gandhi} son clasificadas correctament
     \caption{Comparativa Gandhi: ResNet50 vs VGG-16.}
 \end{figure}
 
-Se incluye también el análisis de \textbf{Donald Trump} como perfil estándar de control externo para evaluar la generalización del modelo ante figuras de alta relevancia pública.
+Se incluye también el análisis de \textbf{Donald Trump}, el actual presidente de EE. UU. y el primero en ser condenado por 34 delitos de falsificación de registros comerciales. Aunque no se autoindultó formalmente, sus procesos judiciales se detuvieron o desestimaron tras ganar la reelección y regresar a la Casa Blanca, como perfil estándar de control externo para evaluar la generalización del modelo ante figuras de alta relevancia pública, presenta una probabilidad de riesgo del $61.64\%$, mientras que VGG-16 muestra una probabilidad de no riesgo del $0.00\%$.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.48\columnwidth]{../reports/url_donald_trump_resnet.png}
@@ -74,7 +74,7 @@ Se incluye también el análisis de \textbf{Donald Trump} como perfil estándar 
     \caption{Comparativa Trump: ResNet50 vs VGG-16.}
 \end{figure}
 
-Finalmente, se realiza la validación sobre rostros femeninos externos como el de \textbf{María Corina Machado}, confirmando la consistencia en el aprendizaje de rasgos morfológicos esenciales.
+Finalmente, se realiza la validación sobre rostros femeninos externos como el de \textbf{María Corina Machado}, es la líder opositora venezolana y Nobel de la Paz 2025 que ha encabezado la lucha civil contra el chavismo. Ha sido inhabilitada y acusada de conspiración por el Estado venezolano, cargos que la comunidad internacional califica como una maniobra política para frenar su liderazgo, confirmando la consistencia en el aprendizaje entre ambos modelos, donde ResNet50 muestra una probabilidad de riesgo, mientras que VGG-16 muestra una probabilidad de no riesgo.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.48\columnwidth]{../reports/url_maria_corina_machado_resnet.png}
@@ -82,5 +82,5 @@ Finalmente, se realiza la validación sobre rostros femeninos externos como el d
     \caption{Comparativa M.C. Machado: ResNet50 vs VGG-16.}
 \end{figure}
 
-Este análisis cualitativo confirma que, aunque las arquitecturas difieren, el aprendizaje converge hacia los mismos patrones esenciales.
+Este análisis cualitativo confirma que, aunque las arquitecturas difieren, el aprendizaje no converge hacia los mismos patrones esenciales, lo que sugiere que el modelo no está aprendiendo las características morfológicas del rostro, sino que está aprendiendo a identificar patrones superficiales que no son relevantes para la clasificación, lo que podría explicar las diferencias en las predicciones entre ambos modelos.
 \clearpage

@@ -1,29 +1,37 @@
 \section{Conclusiones y Líneas Abiertas}
 
-El sistema desarrollado demuestra la viabilidad técnica de clasificar perfiles de riesgo mediante redes neuronales convolucionales con una alta tasa de éxito. La integración de \textbf{MTCNN} y \textbf{Grad-CAM} ha sido crucial para garantizar que el modelo aprenda rasgos faciales genuinos y no artefactos del fondo de las imágenes.
+Tras completar el pipeline de entrenamiento, auditoría y validación externa, se ha llegado a una conclusión determinante que redefine los hallazgos iniciales del estudio:
 
-Como conclusión principal, la arquitectura \textbf{ResNet50} ha mostrado un equilibrio superior entre precisión y estabilidad, mientras que \textbf{VGG-16} presenta mayor sensibilidad a detalles específicos. El balanceo de datos mediante \textbf{DeepFace} ha sido la pieza angular para garantizar un sistema éticamente responsable y libre de sesgos raciales directos.
+\textbf{Se descarta la posibilidad de detectar de forma fiable si una persona es de "riesgo" o no a través de los modelos y datos utilizados en esta investigación.}
+
+A pesar de que las métricas internas (\textbf{97\% de precisión y F1-score robusto}) sugerían un éxito técnico, la validación cualitativa y el análisis de errores demuestran que el sistema no ha aprendido a identificar rasgos fisonómicos universales de la conducta. El éxito estadístico en las matrices de confusión es, en realidad, un reflejo de las limitaciones de los datos de origen. La red neuronal ha aprendido a distinguir entre \textit{fichas policiales} y \textit{fotografías públicas}, basándose en el brillo, el contraste del flash y la expresión emocional del sujeto en el momento de la captura, y no en su morfología ósea o facial.
+
+Este hallazgo es fundamental para la ética algorítmica: demuestra que la visión artificial es extremadamente sensible al \textit{ruido contextual}. El uso de datasets con condiciones de iluminación dispares y muestras limitadas impide la creación de un modelo justo, transformando una herramienta técnica en un generador de prejuicios automatizados si no se somete a una auditoría de generalización como la realizada en este trabajo.
 
 \subsection{Líneas Futuras de Investigación}
+Para superar las limitaciones identificadas y avanzar hacia una biometría más científica y menos sesgada, se proponen las siguientes actuaciones:
+
 \begin{itemize}
-    \item \textbf{Análisis Multimodal:} Integrar registros de audio o texto forense para complementar el análisis visual.
-    \item \textbf{Sistemas de Tiempo Real:} Optimizar el pipeline para su ejecución en dispositivos móviles con \textit{MobileNetV3}.
-    \item \textbf{Debate Ético y Legal:} Profundizar en las implicaciones del uso de estas herramientas en sistemas judiciales reales y su cumplimiento con el RGPD.
+    \item \textbf{Control de Iluminación por Software:} Implementar algoritmos de ecualización de iluminación (como \textit{CLAHE}) o modelos de generación (\textit{GANs}) para normalizar el brillo y las sombras entre datasets heterogéneos antes del entrenamiento.
+    \item \textbf{Normalización de la Expresión Facial:} Utilizar técnicas de \textit{Face Frontalization} y neutralización de expresiones mediante redes generativas para asegurar que el modelo solo analice rasgos estructurales y no gestos temporales.
+    \item \textbf{Ampliación y Diversidad de la Muestra:} Incorporar datasets con mayor resolución y una variedad controlada de entornos para evitar que el fondo o el "estilo" de la cámara influyan en la clasificación.
+    \item \textbf{Análisis Morfológico Puro:} Investigar el uso de modelos de mallas 3D en lugar de imágenes 2D, eliminando por completo la información de color, textura y luz, centrándose exclusivamente en las coordenadas espaciales de los rasgos faciales.
+    \item \textbf{Debate Bioético:} Dada la incapacidad de los modelos para generalizar de forma justa, es imperativo establecer marcos legales que limiten el uso de la biometría predictiva en el sistema judicial hasta que se garantice la neutralidad absoluta de los datos.
 \end{itemize}
 
 \section{Referencias}
 
 \begin{enumerate}
+    \item Lombroso, C. (1876). \textit{L'Uomo Delinquente}. Hoepli.
+    \item Goring, C. (1913). \textit{The English Convict: A Statistical Study}. His Majesty's Stationery Office.
+    \item Simonyan, K., \& Zisserman, A. (2015). \textit{Very deep convolutional networks for large-scale image recognition}. In International Conference on Learning Representations (ICLR).
+    \item He, K., Zhang, X., Ren, S., \& Sun, J. (2016). \textit{Deep residual learning for image recognition}. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (pp. 770-778).
+    \item Zhang, K., Zhang, Z., Li, Z., \& Qiao, Y. (2016). \textit{Joint face detection and alignment using multitask cascaded convolutional networks}. IEEE Signal Processing Letters, 23(10), 1499-1503.
+    \item Selvaraju, R. R., et al. (2017). \textit{Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization}. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) (pp. 618-626).
+    \item Kranthi Kumar, K., et al. (2021). \textit{Criminal face identification system using deep learning algorithm multi-task cascade neural network (MTCNN)}. Materials Today: Proceedings.
     \item Álvarez Navarro, A., et al. (2022). \textit{Revisión de los métodos de reconocimiento facial en imágenes RGB-D}. Revista Cubana de Ciencias Informáticas.
     \item Fructuoso Freire Montero, A. (2022). \textit{El reconocimiento facial como instrumento de investigación y prevención del delito}. Anuario da Facultade de Dereito da Universidade da Coruña.
-    \item Garcia Silva, C. E., \& Mazon Loaiza, J. D. (2024). \textit{El reconocimiento facial como instrumento de investigación y prevención del delito}. Anatomía Digital.
-    \item Goring, C. (1913). \textit{The English Convict: A Statistical Study}. His Majesty's Stationery Office.
-    \item He, K., Zhang, X., Ren, S., \& Sun, J. (2016). \textit{Deep Residual Learning for Image Recognition}. CVPR.
-    \item Kranthi Kumar, K., et al. (2021). \textit{Criminal face identification system using deep learning algorithm multi-task cascade neural network (MTCNN)}. Materials Today: Proceedings.
-    \item Lombroso, C. (1876). \textit{L'Uomo Delinquente}. Hoepli.
+    \item Garcia Silva, C. E., \& Mazon Loaiza, J. D. (2024). \textit{El reconocimiento facial y su impacto en la seguridad ciudadana: Una revisión sistemática}. Anatomía Digital, 7(1.2), 6-21.
     \item Rani, R., et al. (2025). \textit{Face Recognition System for Criminal Identification in CCTV Footage Using Keras and OpenCV}. Ingénierie des Systèmes d'Information.
-    \item Selvaraju, R. R., et al. (2017). \textit{Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization}. ICCV.
-    \item Simonyan, K., \& Zisserman, A. (2014). \textit{Very Deep Convolutional Networks for Large-Scale Image Recognition}.
-    \item Zhang, K., Zhang, Z., Li, Z., \& Qiao, Y. (2016). \textit{Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks}. IEEE Signal Processing Letters.
 \end{enumerate}
-\clearpage 
+\clearpage

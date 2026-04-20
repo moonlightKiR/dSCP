@@ -24,6 +24,7 @@
 \contentsline {subsubsection}{\numberline {7.2.1}Rendimiento Estadístico (Matrices de Confusión)}{6}{subsubsection.7.2.1}%
 \contentsline {subsubsection}{\numberline {7.2.2}Análisis de Explicabilidad (Grad-CAM)}{6}{subsubsection.7.2.2}%
 \contentsline {subsubsection}{\numberline {7.2.3}Validación con Sujetos Externos (URLs)}{7}{subsubsection.7.2.3}%
-\contentsline {section}{\numberline {8}Conclusiones y Líneas Abiertas}{8}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Líneas Futuras de Investigación}{8}{subsection.8.1}%
-\contentsline {section}{\numberline {9}Referencias}{8}{section.9}%
+\contentsline {section}{\numberline {8}Discusión abierta}{9}{section.8}%
+\contentsline {section}{\numberline {9}Conclusiones y Líneas Abiertas}{10}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Líneas Futuras de Investigación}{10}{subsection.9.1}%
+\contentsline {section}{\numberline {10}Referencias}{10}{section.10}%
