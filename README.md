@@ -27,28 +27,36 @@ Para entrenar a nuestro juez electrónico, utilizamos dos fuentes equilibradas:
 1. **Perfil Estándar:** Extraído de [Labeled Faces in the Wild (LFW)](https://www.kaggle.com/datasets/jessicali9530/lfw-dataset).
 2. **Perfil de Riesgo:** Extraído del [Departamento Correccional de Illinois (Illinois DOC)](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset).
 
-## El Proceso (Pipeline)
+## El Proceso (Pipeline de Ejecución)
 
-1. **Selección e Integración:** Unificación de los datasets LFW (Control) e Illinois DOC (Riesgo).
-2. **Preprocesamiento:**
-   - Reescalado uniforme y normalización de píxeles (escala 0-1).
-   - **Detección de Landmarks Faciales** para alinear rostros y eliminar sesgos por inclinación.
-3. **Minería de Datos (Modelado):** Configuración de la CNN con optimización automatizada.
-4. **Extracción y Evaluación:** Generación de predicciones y análisis de activación de capas para ver *exactamente* qué rasgos "delatan" al sujeto.
+El sistema automatiza todo el ciclo de vida del dato, desde la descarga hasta la inferencia explicable:
 
-## Diseño Experimental
+1.  **Verificación e Ingesta:** Comprobación de integridad de los datasets (Illinois y LFW) mediante MD5.
+2.  **Análisis Exploratorio de Datos (EDA) Avanzado:**
+    *   **Calidad de Imagen:** Distribución de brillo y contraste (espacio HSV).
+    *   **Demografía y Etnia:** Análisis de raza (usando **DeepFace** para LFW) y edad/sexo (Illinois).
+    *   **Análisis de Emociones:** Clasificación de expresiones predominantes en los rostros.
+    *   **Cara Promedio:** Generación visual del "rostro promedio" de cada grupo.
+3.  **Preprocesamiento con MTCNN:** Detección y extracción quirúrgica de rostros, eliminando el ruido del fondo.
+4.  **Entrenamiento Comparativo:**
+    *   Entrenamiento de **ResNet50** y **VGG-16** en paralelo.
+    *   Balanceo de clases automático para evitar sesgos algorítmicos.
+5.  **Auditoría y Explicabilidad (XAI):**
+    *   Generación de **Matrices de Confusión** detalladas por modelo.
+    *   **Grad-CAM (Heatmaps):** Visualización de las regiones faciales que más influyen en la predicción del modelo.
+6.  **Validación Externa:** Clasificación automática de sujetos externos mediante URLs (test de estrés del modelo).
 
-Para garantizar que nuestros sesgos sean "estadísticamente sólidos":
+## Reportes y Resultados
 
-- **Estimador de Error:** 80% Entrenamiento / 20% Test (Holdout).
-- **Validación Cruzada:** k-fold durante la fase de optimización con Optuna.
-- **Métricas:**
-  - **Matriz de Confusión:** Para cuantificar cuántos "inocentes" han sido señalados.
-  - **F1-Score y AUC-ROC:** Para medir la verdadera capacidad discriminatoria del modelo.
+Tras la ejecución, la carpeta `/reports` contendrá:
+- `illinois_quality.png` / `lfw_quality.png`: Análisis técnico de las imágenes.
+- `illinois_demographics.png` / `lfw_demographics.png`: Perfilado estadístico de los sujetos.
+- `illinois_average_face.png` / `lfw_average_face.png`: Visualización del canon facial de cada dataset.
+- `confusion_matrix_[modelo].png`: Rendimiento exacto del clasificador.
+- `heatmap_[modelo]_[imagen].jpg`: Explicación visual de por qué el modelo tomó una decisión.
+- `url_[nombre]_[modelo].png`: Resultados de la clasificación de sujetos conocidos externos.
 
----
-
-## USO
+## Uso
 
 Dentro del repositorio en un terminal tipo bash ejecutar:
 
@@ -56,27 +64,14 @@ Dentro del repositorio en un terminal tipo bash ejecutar:
 uv venv --python 3.13
 uv sync
 source .venv/bin/activate
-```
-Once done this you have to install pre-commit functionality:
-
-```bash
 pre-commit install
 ```
 
-And then check if formatting is ok:
-
-```bash
-pre-commit run
-```
-
-To download the data you will have to run the next command:
+Para ejecutar el pipeline completo (Descarga, EDA, Preprocesamiento, Entrenamiento y Auditoría):
 
 ```bash
 uv run app/main.py
 ```
-
-This command downloads and unzips the content of
-[davidjfisher&#39;s illinois-doc-labeled-faces-dataset](https://www.kaggle.com/datasets/davidjfisher/illinois-doc-labeled-faces-dataset)
 
 ---
 
