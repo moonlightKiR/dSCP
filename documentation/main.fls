@@ -121,6 +121,9 @@ INPUT main.aux
 INPUT ./portada.aux
 INPUT ./portada.aux
 INPUT portada.aux
+INPUT ./NOTOCAR/index.aux
+INPUT ./NOTOCAR/index.aux
+INPUT NOTOCAR/index.aux
 INPUT ./NOTOCAR/contents.aux
 INPUT ./NOTOCAR/contents.aux
 INPUT NOTOCAR/contents.aux
@@ -156,6 +159,18 @@ INPUT ./palabras.sum
 INPUT ./palabras.sum
 INPUT palabras.sum
 INPUT /usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map
+INPUT ./NOTOCAR/index.tex
+INPUT ./NOTOCAR/index.tex
+OUTPUT NOTOCAR/index.aux
+INPUT ./NOTOCAR/index.tex
+INPUT ./NOTOCAR/index.tex
+INPUT NOTOCAR/index.tex
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
+INPUT ./main.toc
+INPUT ./main.toc
+INPUT main.toc
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+OUTPUT main.toc
 INPUT ./NOTOCAR/contents.tex
 INPUT ./NOTOCAR/contents.tex
 OUTPUT NOTOCAR/contents.aux
@@ -167,8 +182,6 @@ INPUT ./content/1.tex
 INPUT ./content/1.tex
 INPUT ./content/1.tex
 INPUT content/1.tex
-INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
-INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT ./content/2.tex
 INPUT ./content/2.tex
@@ -268,6 +281,9 @@ INPUT main.aux
 INPUT ./portada.aux
 INPUT ./portada.aux
 INPUT portada.aux
+INPUT ./NOTOCAR/index.aux
+INPUT ./NOTOCAR/index.aux
+INPUT NOTOCAR/index.aux
 INPUT ./NOTOCAR/contents.aux
 INPUT ./NOTOCAR/contents.aux
 INPUT NOTOCAR/contents.aux
