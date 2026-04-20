@@ -11,8 +11,9 @@ from .eda_base import EDABase
 
 
 class LFWEDA(EDABase):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, csv_path=None):
         super().__init__(data_dir)
+        self.csv_path = csv_path
         self.df = None
 
     def build_dataframe(self):
@@ -59,7 +60,7 @@ class LFWEDA(EDABase):
         plt.close()
 
     def analyze_quality(self, sample_size=500):
-        """Analyzes brightness and contrast on a sample of images."""
+        """Analyzes brightness and contrast on a sample of images (using HSV V-channel)."""
         if self.df is None:
             return
         sample_df = self.df.sample(
@@ -69,20 +70,22 @@ class LFWEDA(EDABase):
 
         print(f"Analyzing quality for {len(sample_df)} images...")
         for path in tqdm(sample_df["Image_Path"]):
-            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread(path)
             if img is not None:
-                brightness.append(np.mean(img))
-                contrast.append(np.std(img))
+                hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+                v_channel = hsv[:, :, 2]
+                brightness.append(np.mean(v_channel))
+                contrast.append(np.std(v_channel))
 
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
         sns.histplot(
             brightness, bins=30, kde=True, ax=axes[0], color="skyblue"
         )
-        axes[0].set_title("Mean Brightness Distribution (Grayscale)")
+        axes[0].set_title("Mean Brightness Distribution (LFW)")
         sns.histplot(contrast, bins=30, kde=True, ax=axes[1], color="salmon")
-        axes[1].set_title("Contrast Distribution (Std Dev)")
+        axes[1].set_title("Contrast Distribution (LFW)")
         plt.tight_layout()
-        self.save_plot(plt, "lfw_image_quality.png")
+        self.save_plot(plt, "lfw_quality.png")
         plt.close()
 
     def generate_average_face(self, sample_size=500):
@@ -110,7 +113,7 @@ class LFWEDA(EDABase):
             avg_img = np.uint8(avg_img / valid_images)
             plt.figure(figsize=(6, 6))
             plt.imshow(cv2.cvtColor(avg_img, cv2.COLOR_BGR2RGB))
-            plt.title("Average Image (LFW)")
+            plt.title(f"Average Face (LFW, n={valid_images})")
             plt.axis("off")
             self.save_plot(plt, "lfw_average_face.png")
             plt.close()
@@ -125,16 +128,15 @@ class LFWEDA(EDABase):
         emotions = []
 
         print(
-            f"Analyzing emotions for {len(sample_df)} images (using DeepFace en {self.device})..."
+            f"Analyzing emotions for {len(sample_df)} images (DeepFace en {self.device})..."
         )
         for path in tqdm(sample_df["Image_Path"]):
             try:
-                # Usamos detector_backend='skip' si las caras ya están alineadas/recortadas para máxima velocidad
                 analysis = DeepFace.analyze(
                     path,
                     actions=["emotion"],
                     enforce_detection=False,
-                    detector_backend="opencv",  # Opencv es el más rápido para CPU/GPU básico
+                    detector_backend="opencv",
                     silent=True,
                 )
                 emotion = (
@@ -146,15 +148,29 @@ class LFWEDA(EDABase):
             except Exception:
                 emotions.append("Unknown")
 
-        emotion_counts = pd.Series(emotions).value_counts()
-        plt.figure(figsize=(8, 5))
-        sns.barplot(
-            x=emotion_counts.index, y=emotion_counts.values, palette="rocket"
-        )
-        plt.title("Emotion Distribution in LFW")
-        plt.xticks(rotation=45)
+        if emotions:
+            plt.figure(figsize=(10, 6))
+            sns.countplot(x=emotions, palette="rocket")
+            plt.title("Dominant Emotion Distribution (LFW Sample)")
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            self.save_plot(plt, "lfw_emotions.png")
+            plt.close()
+
+    def plot_demographics(self):
+        """Plots demographic distributions (Race) for LFW from CSV."""
+        if self.csv_path is None or not os.path.exists(self.csv_path):
+            print(f"Metadata file not found or not provided. Skip demographics plot.")
+            return
+
+        print(f"Loading LFW metadata from {self.csv_path}...")
+        df_race = pd.read_csv(self.csv_path)
+        plt.figure(figsize=(10, 6))
+        sns.countplot(data=df_race, x="race", palette="viridis")
+        plt.title("Race Distribution in LFW (DeepFace Predicted)")
+        plt.tick_params(axis="x", rotation=45)
         plt.tight_layout()
-        self.save_plot(plt, "lfw_emotions.png")
+        self.save_plot(plt, "lfw_demographics.png")
         plt.close()
 
     def run_all(self):
@@ -163,8 +179,8 @@ class LFWEDA(EDABase):
             self.plot_top_identities()
             self.analyze_quality()
             self.generate_average_face()
-            # Emotions are slow, maybe make it optional or keep sample small
             self.analyze_emotions()
+            self.plot_demographics()
 
     def generate_ethnicity_csv(self, output_csv_path="lfw_race_metadata.csv"):
         """

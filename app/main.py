@@ -38,7 +38,7 @@ def main():
     # [PASO 1] Ejecutando EDA sobre imágenes originales...
     print("\n[PASO 1] Ejecutando EDA sobre imágenes originales...")
     ill_eda = IllinoisEDA(ILLINOIS_PATH, ILLINOIS_CSV_PATH)
-    lfw_eda = LFWEDA(LFW_PATH)
+    lfw_eda = LFWEDA(LFW_PATH, LFW_CSV_PATH)
 
     print(">> Ejecutando análisis para Illinois...")
     ill_eda.run_all()
@@ -49,6 +49,8 @@ def main():
     if not os.path.exists(LFW_CSV_PATH) or os.path.getsize(LFW_CSV_PATH) == 0:
         print(">> Generando metadatos étnicos de LFW (DeepFace)...")
         lfw_eda.generate_ethnicity_csv(LFW_CSV_PATH)
+        # Una vez generado, lanzamos el plot de demografía que se saltó en run_all()
+        lfw_eda.plot_demographics()
     else:
         print(">> Metadatos de LFW ya existen. Saltando...")
 
