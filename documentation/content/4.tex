@@ -22,13 +22,6 @@ La robustez del modelo depende críticamente de la fase de limpieza y preparaci�
     \item \textbf{Normalización Estadística:} Los tensores de imagen se normalizan utilizando la media y desviación típica de ImageNet ($\mu=[0.485, 0.456, 0.406]$, $\sigma=[0.229, 0.224, 0.225]$), alineando la distribución de los datos con los pesos preentrenados de las redes.
 \end{enumerate}
 
-\subsection{El Proceso Global (Pipeline)}
-
-El flujo de trabajo se ha automatizado íntegramente en \texttt{main.py}, siguiendo un esquema secuencial:
-\textbf{Validación de Estructura} $\rightarrow$ \textbf{Recuperación de Datasets} $\rightarrow$ \textbf{Auditoría EDA} $\rightarrow$ \textbf{Extracción Facial Masiva} $\rightarrow$ \textbf{Entrenamiento Comparativo} $\rightarrow$ \textbf{Generación de Mapas de Calor (Grad-CAM)}.
-
-Este diseño permite que el sistema sea reproducible y modular, facilitando el intercambio de arquitecturas o la inclusión de nuevas fuentes de datos sin alterar la lógica de procesamiento.
-
 \subsection{Configuración y Parametrización}
 
 El ajuste fino (\textit{fine-tuning}) de las redes \textbf{VGG-16} y \textbf{ResNet50} se ha realizado bajo los siguientes criterios técnicos:

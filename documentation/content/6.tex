@@ -6,7 +6,23 @@ Existen tres factores determinantes que explican este fenómeno y que deben ser 
 
 \begin{enumerate}
     \item \textbf{Sesgo de Iluminación y Brillo:} Al auditar los datasets mediante el EDA, se observó que las imágenes de \textbf{Illinois DOC} (clase Riesgo) presentan una iluminación frontal dura y uniforme, característica de las fichas policiales, mientras que \textbf{LFW} (clase No Riesgo) contiene imágenes con luz ambiental y variaciones cromáticas más ricas. A pesar de que el código en \texttt{dataset.py} aplica una \textbf{normalización estadística estándar} basada en ImageNet, no se implementó una ecualización de histogramas o un preprocesamiento de brillo específico para igualar ambas fuentes. Es altamente probable que los modelos hayan aprendido a distinguir "el estilo de la fotografía" (brillo y contraste) en lugar de la morfología del sujeto.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.48\columnwidth]{../reports/illinois_quality.png}
+        \includegraphics[width=0.48\columnwidth]{../reports/lfw_quality.png}
+        \caption{Distribución de brillo y contraste: Illinois DOC vs LFW.}
+        \label{fig:sesgo_iluminacion}
+    \end{figure}
     \item \textbf{Disparidad en la Expresión Facial (Emociones):} El análisis con \textbf{DeepFace} en la fase de EDA confirmó que la distribución de emociones es dispar. Los sujetos en LFW tienden a presentar expresiones más neutras o positivas (sonrisas), mientras que en Illinois DOC predominan gestos de seriedad, tristeza o hostilidad. Esta disparidad actúa como una etiqueta "invisible": el modelo podría estar clasificando la emoción del momento en que se tomó la foto y no un rasgo inherente a la persona, lo que introduce un sesgo conductual insalvable con los datos actuales.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.48\columnwidth]{../reports/illinois_emotions.png}
+        \includegraphics[width=0.48\columnwidth]{../reports/lfw_emotions.png}
+        \caption{Distribución de emociones dominantes: Illinois DOC vs LFW.}
+        \label{fig:sesgo_emociones}
+    \end{figure}
     \item \textbf{Tamaño de la Muestra y Complejidad:} El balanceo a 4-way sampling, aunque éticamente necesario para mitigar el sesgo racial, redujo drásticamente el tamaño efectivo de la muestra para el entrenamiento profundo. Una muestra de pocos miles de imágenes es insuficiente para que una red neuronal de la profundidad de ResNet50 aprenda rasgos morfológicos sutiles y universales, limitándose a memorizar patrones superficiales del ruido de los datos de origen.
 \end{enumerate}
 

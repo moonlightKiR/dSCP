@@ -46,6 +46,16 @@ Para validar que las predicciones se basan en la morfología facial, se han gene
     \label{fig:gradcam}
 \end{figure}
 
+Por otro lado, en la Figura \ref{fig:gradcam_riesgo} se muestran los mapas de calor correspondientes a sujetos identificados con perfil de riesgo por cada modelo, evidenciando los patrones morfológicos que activan la predicción de criminalidad según la lógica de las redes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_resnet_M14376.jpg}
+    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_vgg_K51668.jpg}
+    \caption{Mapas de calor Grad-CAM para perfiles de riesgo (ResNet vs VGG).}
+    \label{fig:gradcam_riesgo}
+\end{figure}
+
 \subsubsection{Validación con Sujetos Externos (URLs)}
 
 La prueba definitiva de robustez consiste en la clasificación de rostros ajenos al dataset. A continuación se presentan las comparativas entre \textbf{ResNet50} (Izquierda) y \textbf{VGG-16} (Derecha) para distintos perfiles:

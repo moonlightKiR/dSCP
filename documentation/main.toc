@@ -14,17 +14,16 @@
 \contentsline {section}{\numberline {6}Desarrollo de la propuesta}{5}{section.6}%
 \contentsline {subsection}{\numberline {6.1}El Dataset: Recolección y Atributos}{5}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Tratamiento de Datos y Normalización}{5}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}El Proceso Global (Pipeline)}{5}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Configuración y Parametrización}{5}{subsection.6.4}%
-\contentsline {section}{\numberline {7}Experimentación / Resultados obtenidos}{6}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Diseño experimental}{6}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}Metodología de Entrenamiento y Test}{6}{subsubsection.7.1.1}%
+\contentsline {subsection}{\numberline {6.3}Configuración y Parametrización}{5}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Experimentación / Resultados obtenidos}{5}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Diseño experimental}{5}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}Metodología de Entrenamiento y Test}{5}{subsubsection.7.1.1}%
 \contentsline {subsubsection}{\numberline {7.1.2}Métricas de Evaluación}{6}{subsubsection.7.1.2}%
 \contentsline {subsection}{\numberline {7.2}Resultados y análisis}{6}{subsection.7.2}%
 \contentsline {subsubsection}{\numberline {7.2.1}Rendimiento Estadístico (Matrices de Confusión)}{6}{subsubsection.7.2.1}%
 \contentsline {subsubsection}{\numberline {7.2.2}Análisis de Explicabilidad (Grad-CAM)}{6}{subsubsection.7.2.2}%
 \contentsline {subsubsection}{\numberline {7.2.3}Validación con Sujetos Externos (URLs)}{7}{subsubsection.7.2.3}%
 \contentsline {section}{\numberline {8}Discusión abierta}{8}{section.8}%
-\contentsline {section}{\numberline {9}Conclusiones y Líneas Abiertas}{8}{section.9}%
+\contentsline {section}{\numberline {9}Conclusiones y Líneas Abiertas}{9}{section.9}%
 \contentsline {subsection}{\numberline {9.1}Líneas Futuras de Investigación}{9}{subsection.9.1}%
 \contentsline {section}{\numberline {10}Referencias}{9}{section.10}%
