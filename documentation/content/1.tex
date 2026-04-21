@@ -1,10 +1,3 @@
-\section{Abstract}
-
-Este estudio presenta un análisis comparativo de redes neuronales (\textbf{ResNet50 y VGG-16}) para la clasificación biométrica de perfiles de riesgo, eliminando el sesgo de entorno (\textit{shortcut learning}). Mediante \textbf{MTCNN}, se aislaron los óvalos faciales para procesar rasgos morfológicos y no fondos institucionales. Para mitigar sesgos algorítmicos, se implementó un \textbf{balanceo demográfico (4-way sampling)} usando \textbf{DeepFace} para generar metadatos étnicos, neutralizando prejuicios estadísticos entre sujetos blancos y negros de los datasets \textbf{Illinois DOC y LFW}. Los modelos alcanzaron una precisión del \textbf{97\%}, y la validación con \textbf{Grad-CAM} confirmó que la atención se focaliza en la estructura ósea y orbital. Finalmente, la auditoría con \textbf{sujetos externos} demostró que el equilibrio poblacional y la limpieza visual son imperativos para una clasificación justa y técnicamente robusta, capaz de generalizar más allá del entrenamiento.
-
-
-\textbf{Palabras clave:} Biometría Forense, Deep Learning, ResNet50, VGG-16, Grad-CAM, Mitigación de Sesgo, MTCNN.
-
 \section{Introducción}
 
 La posibilidad de vincular la fisonomía humana con la conducta es una interrogante que ha persistido desde las teorías del atavismo de \textbf{Cesare Lombroso} hasta los estudios estadísticos de \textbf{Charles Goring}. En la actualidad, este debate cobra una relevancia renovada gracias a las \textbf{Redes neuronales}, que permite sustituir las observaciones subjetivas por un análisis matemático de patrones biométricos. El aporte fundamental de este trabajo consiste en proponer un marco técnico diseñado para evaluar si los sistemas de visión artificial pueden identificar rasgos faciales de manera objetiva, eliminando los prejuicios humanos que históricamente invalidaron este tipo de investigaciones.

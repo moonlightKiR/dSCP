@@ -1,95 +1,29 @@
-\section{Experimentación / Resultados obtenidos}
+\section{Discusión abierta}
 
-\subsection{Diseño experimental}
+A la luz de los resultados obtenidos, se abre un espacio de reflexión crítica sobre la validez de los sistemas de clasificación biométrica de riesgo. Aunque los modelos \textbf{ResNet50 y VGG-16} alcanzaron una precisión superior al \textbf{97\%} en el conjunto de test, la validación con sujetos externos (fase de URLs) reveló una inconsistencia alarmante. Esta discrepancia entre el rendimiento interno y la capacidad de generalización sugiere que las redes no están detectando rasgos fisonómicos de "criminalidad", sino que han sucumbido al \textit{shortcut learning} o aprendizaje de atajos.
 
-El rigor científico del estudio se sustenta en una metodología de validación diseñada para evaluar la capacidad de generalización de los modelos y la ausencia de sesgos discriminatorios.
+Existen tres factores determinantes que explican este fenómeno y que deben ser discutidos:
 
-\subsubsection{Metodología de Entrenamiento y Test}
+\begin{enumerate}
+    \item \textbf{Sesgo de Iluminación y Brillo:} Al auditar los datasets mediante el EDA, se observó que las imágenes de \textbf{Illinois DOC} (clase Riesgo) presentan una iluminación frontal dura y uniforme, característica de las fichas policiales, mientras que \textbf{LFW} (clase No Riesgo) contiene imágenes con luz ambiental y variaciones cromáticas más ricas. A pesar de que el código en \texttt{dataset.py} aplica una \textbf{normalización estadística estándar} basada en ImageNet, no se implementó una ecualización de histogramas o un preprocesamiento de brillo específico para igualar ambas fuentes. Es altamente probable que los modelos hayan aprendido a distinguir "el estilo de la fotografía" (brillo y contraste) en lugar de la morfología del sujeto.
 
-Se ha implementado un método de validación \textbf{Hold-out 80/20}. El dataset balanceado se divide aleatoriamente en un $80\%$ para el entrenamiento y un $20\%$ para el test. Esta partición garantiza que el modelo sea evaluado con rostros que no han intervenido en el proceso de aprendizaje. El entrenamiento se ejecuta durante un ciclo de épocas controlado con un tamaño de lote (\textit{batch size}) de 64 imágenes para estabilizar el gradiente.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.48\columnwidth]{../reports/illinois_quality.png}
+        \includegraphics[width=0.48\columnwidth]{../reports/lfw_quality.png}
+        \caption{Distribución de brillo y contraste: Illinois DOC vs LFW.}
+        \label{fig:sesgo_iluminacion}
+    \end{figure}
+    \item \textbf{Disparidad en la Expresión Facial (Emociones):} El análisis con \textbf{DeepFace} en la fase de EDA confirmó que la distribución de emociones es dispar. Los sujetos en LFW tienden a presentar expresiones más neutras o positivas (sonrisas), mientras que en Illinois DOC predominan gestos de seriedad, tristeza o hostilidad. Esta disparidad actúa como una etiqueta "invisible": el modelo podría estar clasificando la emoción del momento en que se tomó la foto y no un rasgo inherente a la persona, lo que introduce un sesgo conductual insalvable con los datos actuales.
 
-\subsubsection{Métricas de Evaluación}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.48\columnwidth]{../reports/illinois_emotions.png}
+        \includegraphics[width=0.48\columnwidth]{../reports/lfw_emotions.png}
+        \caption{Distribución de emociones dominantes: Illinois DOC vs LFW.}
+        \label{fig:sesgo_emociones}
+    \end{figure}
+    \item \textbf{Tamaño de la Muestra y Complejidad:} El balanceo a 4-way sampling, aunque éticamente necesario para mitigar el sesgo racial, redujo drásticamente el tamaño efectivo de la muestra para el entrenamiento profundo. Una muestra de pocos miles de imágenes es insuficiente para que una red neuronal de la profundidad de ResNet50 aprenda rasgos morfológicos sutiles y universales, limitándose a memorizar patrones superficiales del ruido de los datos de origen.
+\end{enumerate}
 
-Para una auditoría exhaustiva del rendimiento, el sistema genera automáticamente un informe analizando la \textbf{Exactitud (Accuracy)}, el \textbf{F1-score} (media armónica entre precisión y exhaustividad) y la \textbf{Matriz de Confusión}, representación visual clave para identificar si el modelo tiene sesgos hacia alguna de las clases.
-
-\subsection{Resultados y análisis}
-
-Tras la ejecución de los experimentos sobre las arquitecturas ResNet50 y VGG-16, se han extraído datos que confirman la viabilidad de la propuesta técnica.
-
-\subsubsection{Rendimiento Estadístico (Matrices de Confusión)}
-
-Como se observa en las figuras \ref{fig:matriz_resnet} y \ref{fig:matriz_vgg}, ambos modelos muestran una convergencia excepcional. La diagonal principal de las matrices confirma que la gran mayoría de los sujetos son categorizados correctamente. La alta precisión alcanzada (superior al $97\%$) demuestra que el rostro podría contiener suficiente información biométrica para diferenciar los perfiles.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{../reports/confusion_matrix_resnet50_final.png}
-    \caption{Matriz de Confusión: ResNet50. Se observa un equilibrio casi perfecto entre clases.}
-    \label{fig:matriz_resnet}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{../reports/confusion_matrix_vgg-16_final.png}
-    \caption{Matriz de Confusión: VGG-16. Rendimiento sólido con ligera variación en falsos positivos.}
-    \label{fig:matriz_vgg}
-\end{figure}
-
-\subsubsection{Análisis de Explicabilidad (Grad-CAM)}
-
-Para validar que las predicciones se basan en la morfología facial, se han generado mapas de calor mediante \textbf{Grad-CAM}. Como se observa en la Figura \ref{fig:gradcam}, las redes focalizan su atención en regiones críticas como el arco supraorbitario y la estructura cigomática, ignorando el fondo o los elementos externos para clasificar correctamente bajo la teoría de Cesare Lombroso. Como se observa al analizar las imágenes de test con los mapas de calor, el modelo identifica puntos exactos del rostro —o la ausencia de estos— en las personas sin riesgo.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_resnet_lfw_Jennifer_Lopez_Jennifer_Lopez_0019.jpg}
-    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_vgg_lfw_Bob_Stoops_Bob_Stoops_0002.jpg}
-    \caption{Mapas de calor Grad-CAM (ResNet vs VGG). La activación se concentra exclusivamente en el óvalo facial procesado.}
-    \label{fig:gradcam}
-\end{figure}
-
-Por otro lado, en la Figura \ref{fig:gradcam_riesgo} se muestran los mapas de calor correspondientes a sujetos identificados con perfil de riesgo por cada modelo, evidenciando los patrones morfológicos que activan la predicción de criminalidad según la lógica de las redes.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_resnet_M14376.jpg}
-    \includegraphics[width=0.48\columnwidth]{../reports/heatmap_vgg_K51668.jpg}
-    \caption{Mapas de calor Grad-CAM para perfiles de riesgo (ResNet vs VGG).}
-    \label{fig:gradcam_riesgo}
-\end{figure}
-
-\subsubsection{Validación con Sujetos Externos (URLs)}
-
-La prueba definitiva de robustez consiste en la clasificación de rostros ajenos al dataset. A continuación se presentan las comparativas entre \textbf{ResNet50} (Izquierda) y \textbf{VGG-16} (Derecha) para distintos perfiles:
-
-Sujetos como \textbf{Charles Manson}, quien fue el líder de la secta criminal conocida como "La Familia Manson", a quienes manipuló para asesinar a siete personas en 1969. Tras ser condenado por estos crímenes, pasó el resto de su vida tras las rejas hasta su muerte en 2017, los modelos muestran probabilidades dispares, mientras que ResNet50 muestra una probabilidad de riesgo superior al $90\%$, VGG-16 muestra una probabilidad de no riesgo del $0.02\%$.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/url_charles_manson_resnet.png}
-    \includegraphics[width=0.48\columnwidth]{../reports/url_charles_manson_vgg.png}
-    \caption{Comparativa Manson: ResNet50 vs VGG-16.}
-\end{figure}
-
-En contraste, figuras como \textbf{Mahatma Gandhi}, líder de la resistencia no violenta que logró la independencia de la India del dominio británico en 1947. Es un icono mundial de la paz, aunque su legado se ve empañado por comentarios racistas de juventud y polémicos experimentos personales con mujeres de su entorno, presenta la misma disparidad que el sujeto anterior, condenados por crímenes violentos, ResNet50 muestra una probabilidad de riesgo del $60.91\%$, mientras que VGG-16 muestra una probabilidad de no riesgo del $0.02\%$.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/url_gandhi_resnet.png}
-    \includegraphics[width=0.48\columnwidth]{../reports/url_gandhi_vgg.png}
-    \caption{Comparativa Gandhi: ResNet50 vs VGG-16.}
-\end{figure}
-
-Se incluye también el análisis de \textbf{Donald Trump}, el actual presidente de EE. UU. y el primero en ser condenado por 34 delitos de falsificación de registros comerciales. Aunque no se autoindultó formalmente, sus procesos judiciales se detuvieron o desestimaron tras ganar la reelección y regresar a la Casa Blanca, como perfil estándar de control externo para evaluar la generalización del modelo ante figuras de alta relevancia pública, presenta una probabilidad de riesgo del $61.64\%$, mientras que VGG-16 muestra una probabilidad de no riesgo del $0.00\%$.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/url_donald_trump_resnet.png}
-    \includegraphics[width=0.48\columnwidth]{../reports/url_donald_trump_vgg.png}
-    \caption{Comparativa Trump: ResNet50 vs VGG-16.}
-\end{figure}
-
-Finalmente, se realiza la validación sobre rostros femeninos externos como el de \textbf{María Corina Machado}, es la líder opositora venezolana y Nobel de la Paz 2025 que ha encabezado la lucha civil contra el chavismo. Ha sido inhabilitada y acusada de conspiración por el Estado venezolano, cargos que la comunidad internacional califica como una maniobra política para frenar su liderazgo, confirmando la consistencia en el aprendizaje entre ambos modelos, donde ResNet50 muestra una probabilidad de riesgo, mientras que VGG-16 muestra una probabilidad de no riesgo.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\columnwidth]{../reports/url_maria_corina_machado_resnet.png}
-    \includegraphics[width=0.48\columnwidth]{../reports/url_maria_corina_machado_vgg.png}
-    \caption{Comparativa M.C. Machado: ResNet50 vs VGG-16.}
-\end{figure}
-
-Este análisis cualitativo confirma que, aunque las arquitecturas difieren, el aprendizaje no converge hacia los mismos patrones esenciales, lo que sugiere que el modelo no está aprendiendo las características morfológicas del rostro, sino que está aprendiendo a identificar patrones superficiales que no son relevantes para la clasificación, lo que podría explicar las diferencias en las predicciones entre ambos modelos.
+En conclusión, la "precisión perfecta" observada en las matrices de confusión es, en realidad, un indicativo de que el problema está mal planteado desde la fuente de datos. La biometría, para ser predictiva y justa, requiere de una uniformidad técnica absoluta en la captura de las imágenes que el presente estudio ha demostrado que es casi imposible de obtener a partir de bases de datos públicas y heterogéneas.
