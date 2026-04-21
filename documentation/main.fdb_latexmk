@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1776779598.46816 "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/dSCP/documentation/main.tex" "main.pdf" "main" 1776779599.35718 0
+["pdflatex"] 1776779824.4716 "/Users/guille/Documents/LASALLE/MASTER/MD009/ENTREGAS/dSCP/documentation/main.tex" "main.pdf" "main" 1776779825.40614 0
   "../reports/confusion_matrix_resnet50_final.png" 1776714503.64604 25794 878f2133cf9950e2be01b74f64627c21 ""
   "../reports/confusion_matrix_vgg-16_final.png" 1776714695.25263 25562 029a7fa5862dec28770e550aacc029f8 ""
   "../reports/heatmap_resnet_M14376.jpg" 1776712359.88016 23813 41b0d98c5ef3956f8e654bbb769ea1f3 ""
@@ -125,13 +125,13 @@
   "content/2.tex" 1776779237.0253 3342 fd32280e81e32497acf39c0860ffcce2 ""
   "content/3.tex" 1776779088.31727 4427 00f52cf5b15cce20d4b1ca6cfdce9241 ""
   "content/4.tex" 1776779244.41327 2859 cd711146e5542f69c7e2cdd382765886 ""
-  "content/5.tex" 1776779597.23511 8950 150de7ea112886c90799de8e889d64e7 ""
+  "content/5.tex" 1776779824.24802 9188 68ff80ce5e0c806138826dd5f5b73742 ""
   "content/6.tex" 1776712359.87245 3709 9900231ba39e213d98f93e8f02d2b614 ""
   "content/7.tex" 1776779106.64464 3006 badcc3ed614a79312a45e15a010ea6cc ""
   "content/8.tex" 1776779354.39089 2010 5d9ba2f3d53cc6ff2b170bd26289fa13 ""
   "content/abstract.tex" 1776719989.45229 1194 8f21a109e1dd7cac9b995672a7e0bbd2 ""
-  "main.aux" 1776779599.30603 6835 c0a30826f1e12aa53331b9d3faabaee3 "pdflatex"
-  "main.out" 1776779599.3073 5547 a201f0281e32396ce7c8a4818ed36127 "pdflatex"
+  "main.aux" 1776779825.35161 6835 c0a30826f1e12aa53331b9d3faabaee3 "pdflatex"
+  "main.out" 1776779825.35285 5547 a201f0281e32396ce7c8a4818ed36127 "pdflatex"
   "main.tex" 1776779364.95718 473 44dadea60066658e455bb3d03988fec5 ""
   (generated)
   "main.aux"
