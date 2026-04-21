@@ -1,0 +1,20 @@
+\section{Conclusiones y Líneas Abiertas}
+
+Tras completar el pipeline de entrenamiento, auditoría y validación externa, se ha llegado a una conclusión determinante que redefine los hallazgos iniciales del estudio:
+
+\textbf{Se descarta la posibilidad de detectar de forma fiable si una persona es de "riesgo" o no a través de los modelos y datos utilizados en esta investigación.}
+
+A pesar de que las métricas internas (\textbf{97\% de precisión y F1-score robusto}) sugerían un éxito técnico, la validación cualitativa y el análisis de errores demuestran que el sistema no ha aprendido a identificar rasgos fisonómicos universales de la conducta. El éxito estadístico en las matrices de confusión es, en realidad, un reflejo de las limitaciones de los datos de origen. La red neuronal ha aprendido a distinguir entre \textit{fichas policiales} y \textit{fotografías públicas}, basándose en el brillo, el contraste del flash y la expresión emocional del sujeto en el momento de la captura, y no en su morfología ósea o facial.
+
+Este hallazgo es fundamental para la ética algorítmica: demuestra que la visión artificial es extremadamente sensible al \textit{ruido contextual}. El uso de datasets con condiciones de iluminación dispares y muestras limitadas impide la creación de un modelo justo, transformando una herramienta técnica en un generador de prejuicios automatizados si no se somete a una auditoría de generalización como la realizada en este trabajo.
+
+\subsection{Líneas Futuras de Investigación}
+Para superar las limitaciones identificadas y avanzar hacia una biometría más científica y menos sesgada, se proponen las siguientes actuaciones:
+
+\begin{itemize}
+    \item \textbf{Control de Iluminación por Software:} Implementar algoritmos de ecualización de iluminación (como \textit{CLAHE}) o modelos de generación (\textit{GANs}) para normalizar el brillo y las sombras entre datasets heterogéneos antes del entrenamiento.
+    \item \textbf{Normalización de la Expresión Facial:} Utilizar técnicas de \textit{Face Frontalization} y neutralización de expresiones mediante redes generativas para asegurar que el modelo solo analice rasgos estructurales y no gestos temporales.
+    \item \textbf{Ampliación y Diversidad de la Muestra:} Incorporar datasets con mayor resolución y una variedad controlada de entornos para evitar que el fondo o el "estilo" de la cámara influyan en la clasificación.
+    \item \textbf{Análisis Morfológico Puro:} Investigar el uso de modelos de mallas 3D en lugar de imágenes 2D, eliminando por completo la información de color, textura y luz, centrándose exclusivamente en las coordenadas espaciales de los rasgos faciales.
+    \item \textbf{Debate Bioético:} Dada la incapacidad de los modelos para generalizar de forma justa, es imperativo establecer marcos legales que limiten el uso de la biometría predictiva en el sistema judicial hasta que se garantice la neutralidad absoluta de los datos.
+\end{itemize}
